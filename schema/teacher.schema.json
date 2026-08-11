@@ -1,0 +1,63 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://hagwon-tycoon.local/schema/teacher.schema.json",
+  "title": "TeacherCard",
+  "description": "강사 카드. P1에서 확정. 이후 변경 금지 — 배치 생산물이 이 스키마에 의존한다.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "name", "subject", "teaching", "fame", "askingPrice", "trait", "blurb"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^t_[0-9]{4}$",
+      "description": "t_0001 형식. 배치 간 충돌 방지를 위해 배치별 번호 구간을 사전 배정한다."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 8,
+      "description": "가상 이름. 실존 인물명 금지 — validate:content의 실명 필터가 강제한다."
+    },
+    "subject": {
+      "type": "string",
+      "enum": ["KOREAN", "MATH", "ENGLISH", "SCIENCE"],
+      "description": "국어 / 수학 / 영어 / 탐구. 반의 과목 슬롯에 대응한다."
+    },
+    "teaching": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "강의력. 배치된 반의 성적 상승."
+    },
+    "fame": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "인지도. 학원 전체 지원자 유입 증가."
+    },
+    "askingPrice": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 60,
+      "description": "요구 연봉 = 입찰 하한선. 기준식 (teaching + fame) * 3, 허용 편차 ±30%."
+    },
+    "trait": {
+      "type": "string",
+      "enum": [
+        "TOP_CLASS_SPECIALIST",
+        "MID_CLASS_SPECIALIST",
+        "BASIC_CLASS_SPECIALIST",
+        "MEDIA_FIGURE",
+        "PICKY",
+        "FACTION"
+      ],
+      "description": "MID_CLASS_SPECIALIST는 사람 승인 대기 중. 승인 전까지 생산에 사용하지 않는다."
+    },
+    "blurb": {
+      "type": "string",
+      "minLength": 4,
+      "maxLength": 20,
+      "description": "한 줄 소개. 20자 이내. 실존 학원/강사를 연상시키는 표현 금지."
+    }
+  }
+}

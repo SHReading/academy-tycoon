@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>P0 종이 프로토타입 키트 — 학원 타이쿤</title>
+<style>
+  @page { size: A4; margin: 10mm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    margin: 0; padding: 10mm; color: #111; background: #fff;
+  }
+  h1 { font-size: 15pt; margin: 0 0 2mm; }
+  h2 { font-size: 11pt; margin: 6mm 0 2mm; border-bottom: 1.5px solid #111; padding-bottom: 1mm; }
+  .note { font-size: 8pt; color: #555; margin: 0 0 4mm; }
+
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; }
+  .card {
+    border: 1px dashed #999; padding: 4mm 3mm; height: 42mm;
+    display: flex; flex-direction: column; justify-content: space-between;
+    page-break-inside: avoid;
+  }
+  .card .id { font-size: 8pt; color: #666; letter-spacing: .5px; }
+  .card .subj { font-size: 17pt; font-weight: 700; line-height: 1; margin: 1mm 0 2mm; }
+  .stats { display: flex; gap: 3mm; font-size: 8.5pt; }
+  .stats b { display: block; font-size: 14pt; line-height: 1.1; }
+  .price { text-align: right; font-size: 8.5pt; border-top: 1px solid #ddd; padding-top: 1.5mm; }
+  .price b { font-size: 15pt; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 8pt; }
+  th, td { border: 1px solid #999; padding: 1.6mm 1mm; text-align: center; }
+  th { background: #f0f0f0; font-weight: 600; }
+  td.blank { height: 7mm; }
+  .lhs { text-align: left; }
+  .board { border: 1.5px solid #111; padding: 3mm; margin-bottom: 3mm; page-break-inside: avoid; }
+  .board h3 { margin: 0 0 2mm; font-size: 10pt; }
+  .slotrow { display: flex; gap: 2mm; margin-bottom: 2mm; }
+  .slot { flex: 1; border: 1px solid #999; height: 13mm; position: relative; }
+  .slot span { position: absolute; top: 1mm; left: 1.5mm; font-size: 7pt; color: #777; }
+  .rowlabel { font-size: 8.5pt; font-weight: 600; width: 16mm; padding-top: 4mm; }
+  .pagebreak { page-break-before: always; }
+  .checks { font-size: 9pt; line-height: 1.9; }
+</style>
+</head>
+<body>
+
+<h1>P0 종이 프로토타입 — 강사 카드 12장</h1>
+<p class="note">
+  점선을 따라 자른다. 실명은 쓰지 않는다 — 카드는 성능만으로 판단한다.<br>
+  공개 순서 · 1턴 T05·T08·T11·T04 / 2턴 T02·T07·T12·T09 / 3턴 T01·T03·T06·T10 (셔플 금지)
+</p>
+
+<div class="grid">
+  <div class="card"><div><div class="id">T01</div><div class="subj">수학</div><div class="stats"><div>강의력<b>5</b></div><div>인지도<b>4</b></div></div></div><div class="price">요구연봉 <b>29</b></div></div>
+  <div class="card"><div><div class="id">T02</div><div class="subj">국어</div><div class="stats"><div>강의력<b>4</b></div><div>인지도<b>4</b></div></div></div><div class="price">요구연봉 <b>25</b></div></div>
+  <div class="card"><div><div class="id">T03</div><div class="subj">수학</div><div class="stats"><div>강의력<b>3</b></div><div>인지도<b>5</b></div></div></div><div class="price">요구연봉 <b>24</b></div></div>
+  <div class="card"><div><div class="id">T04</div><div class="subj">탐구</div><div class="stats"><div>강의력<b>3</b></div><div>인지도<b>3</b></div></div></div><div class="price">요구연봉 <b>19</b></div></div>
+  <div class="card"><div><div class="id">T05</div><div class="subj">영어</div><div class="stats"><div>강의력<b>4</b></div><div>인지도<b>2</b></div></div></div><div class="price">요구연봉 <b>17</b></div></div>
+  <div class="card"><div><div class="id">T06</div><div class="subj">국어</div><div class="stats"><div>강의력<b>3</b></div><div>인지도<b>2</b></div></div></div><div class="price">요구연봉 <b>14</b></div></div>
+  <div class="card"><div><div class="id">T07</div><div class="subj">영어</div><div class="stats"><div>강의력<b>3</b></div><div>인지도<b>1</b></div></div></div><div class="price">요구연봉 <b>13</b></div></div>
+  <div class="card"><div><div class="id">T08</div><div class="subj">수학</div><div class="stats"><div>강의력<b>2</b></div><div>인지도<b>3</b></div></div></div><div class="price">요구연봉 <b>13</b></div></div>
+  <div class="card"><div><div class="id">T09</div><div class="subj">탐구</div><div class="stats"><div>강의력<b>2</b></div><div>인지도<b>2</b></div></div></div><div class="price">요구연봉 <b>12</b></div></div>
+  <div class="card"><div><div class="id">T10</div><div class="subj">영어</div><div class="stats"><div>강의력<b>2</b></div><div>인지도<b>1</b></div></div></div><div class="price">요구연봉 <b>10</b></div></div>
+  <div class="card"><div><div class="id">T11</div><div class="subj">국어</div><div class="stats"><div>강의력<b>1</b></div><div>인지도<b>2</b></div></div></div><div class="price">요구연봉 <b>8</b></div></div>
+  <div class="card"><div><div class="id">T12</div><div class="subj">수학</div><div class="stats"><div>강의력<b>1</b></div><div>인지도<b>1</b></div></div></div><div class="price">요구연봉 <b>7</b></div></div>
+</div>
+
+<div class="pagebreak"></div>
+
+<h1>학원판 — 반 편성</h1>
+<p class="note">학원별 1장씩 인쇄. 슬롯에 카드를 올려놓는다. 빈 슬롯 1개당 −2.</p>
+
+<div class="board">
+  <h3>학원: ☐ FRANCHISE (자금100/평판40) &nbsp; ☐ LEGACY (70/60) &nbsp; ☐ SELECTIVE (50/45)</h3>
+  <div class="slotrow"><div class="rowlabel">상위반<br><span style="font-weight:400;font-size:7pt">정원 40 · ×3 · 평판</span></div>
+    <div class="slot"><span>국어</span></div><div class="slot"><span>수학</span></div><div class="slot"><span>영어</span></div><div class="slot"><span>탐구</span></div></div>
+  <div class="slotrow"><div class="rowlabel">중위반<br><span style="font-weight:400;font-size:7pt">정원 80 · ×1 · 매출</span></div>
+    <div class="slot"><span>국어</span></div><div class="slot"><span>수학</span></div><div class="slot"><span>영어</span></div><div class="slot"><span>탐구</span></div></div>
+  <div class="slotrow"><div class="rowlabel">기초반<br><span style="font-weight:400;font-size:7pt">정원 80 · ×1 · 이탈↓</span></div>
+    <div class="slot"><span>국어</span></div><div class="slot"><span>수학</span></div><div class="slot"><span>영어</span></div><div class="slot"><span>탐구</span></div></div>
+  <div style="font-size:8.5pt;margin-top:2mm">운영 옵션 (택1) &nbsp; ☐ 담임 상담 확대 (성적+5%, 비용 8) &nbsp; ☐ 장학금 확대 (지원자+30%, 비용 15) &nbsp; ☐ 없음</div>
+</div>
+
+<h2>정산 기록표 — 3턴 × 3사</h2>
+<table>
+  <tr><th>턴</th><th>학원</th><th>낙찰</th><th>낙찰가</th><th>고정비<br>누적</th><th>상위반<br>성적</th><th>평판</th><th>지원자</th><th>등록</th><th>자금</th><th>점유율</th></tr>
+  <tr><td rowspan="3">1</td><td class="lhs">FRAN</td><td class="blank"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+  <tr><td class="lhs">LEGA</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+  <tr><td class="lhs">SELE</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+  <tr><td rowspan="3">2</td><td class="lhs">FRAN</td><td class="blank"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+  <tr><td class="lhs">LEGA</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+  <tr><td class="lhs">SELE</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+  <tr><td rowspan="3">3</td><td class="lhs">FRAN</td><td class="blank"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+  <tr><td class="lhs">LEGA</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+  <tr><td class="lhs">SELE</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+</table>
+
+<h2>통과 판정</h2>
+<div class="checks">
+  <b>주 기준</b> — 입찰가를 적기 전 5초 이상 손이 멈춘 순간: <b>☐ ☐ ☐ ☐ ☐</b> (2회 이상이면 통과)<br>
+  ☐ "최대한 지르기"가 3턴 내내 정답이었다 → 체크되면 실패<br>
+  ☐ "아무것도 안 지르기"가 3턴 내내 정답이었다 → 체크되면 실패<br>
+  ☐ 반 편성에서도 고민이 발생했다 → 체크되어야 정상<br>
+  1턴 손계산 소요: ______분 (5분 초과 시 정산식을 더 줄인다)<br>
+  존재 이유를 설명 못 하겠는 숫자: ________________
+</div>
+
+</body>
+</html>

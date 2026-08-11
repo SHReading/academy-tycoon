@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://hagwon-tycoon.local/schema/headline.schema.json",
+  "title": "HeadlineTemplate",
+  "description": "매 턴 정산 후 3줄로 상황을 요약하는 신문 헤드라인 템플릿. Presentation 담보 장치(01 문서 5절).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "situation", "template", "weight"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^h_[0-9]{4}$"
+    },
+    "situation": {
+      "type": "string",
+      "enum": [
+        "BID_WON",
+        "BID_LOST",
+        "BID_STOLEN",
+        "NO_BID",
+        "TOP_CLASS_SURGE",
+        "TOP_CLASS_EMPTY_SLOT",
+        "REPUTATION_UP",
+        "REPUTATION_DOWN",
+        "CASH_CRISIS",
+        "SHARE_TAKEOVER",
+        "SHARE_LOST",
+        "TUITION_RAISED",
+        "SCHOLARSHIP_EXPANDED"
+      ],
+      "description": "정산 결과에서 감지되는 상황 코드. core/가 상황을 판정하고 해당 코드의 템플릿을 뽑는다."
+    },
+    "template": {
+      "type": "string",
+      "minLength": 6,
+      "maxLength": 40,
+      "description": "치환 변수: {academy} {rival} {teacher} {subject} {n}. 변수는 반드시 정의된 것만 쓴다."
+    },
+    "tone": {
+      "type": "string",
+      "enum": ["NEUTRAL", "GOOD", "BAD"],
+      "default": "NEUTRAL",
+      "description": "UI 색상 판단용."
+    },
+    "weight": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100
+    }
+  }
+}

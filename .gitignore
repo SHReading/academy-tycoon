@@ -1,0 +1,9 @@
+node_modules/
+.DS_Store
+dist/
+
+# Claude Code 로컬 설정
+.claude/
+
+# 격리 작업공간
+.worktrees/

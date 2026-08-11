@@ -1,0 +1,71 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://hagwon-tycoon.local/schema/event.schema.json",
+  "title": "EventCard",
+  "description": "학기 정산 마지막에 1장 발동하는 이벤트 카드. P1에서 확정. 이후 변경 금지.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "trigger", "headline", "effect", "weight"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^e_[0-9]{4}$"
+    },
+    "trigger": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["minTurn"],
+      "properties": {
+        "minTurn": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 6
+        },
+        "maxTurn": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 6
+        },
+        "requires": {
+          "type": "string",
+          "enum": [
+            "NONE",
+            "REPUTATION_BELOW_40",
+            "REPUTATION_ABOVE_60",
+            "CASH_BELOW_20",
+            "SHARE_LEADER",
+            "SHARE_LAST",
+            "NO_BID_LAST_TURN",
+            "TOP_CLASS_FULL"
+          ],
+          "description": "발동 조건. 로직은 core/에 있고 JSON은 조건 코드만 참조한다."
+        }
+      }
+    },
+    "headline": {
+      "type": "string",
+      "minLength": 6,
+      "maxLength": 30,
+      "description": "신문 헤드라인 한 줄. 이것이 플레이어의 주된 정보원이다."
+    },
+    "effect": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "reputation": { "type": "number", "minimum": -10, "maximum": 10 },
+        "cash": { "type": "number", "minimum": -30, "maximum": 30 },
+        "churn": { "type": "number", "minimum": -0.2, "maximum": 0.2 },
+        "applicants": { "type": "number", "minimum": -0.3, "maximum": 0.3 },
+        "grade": { "type": "number", "minimum": -0.2, "maximum": 0.2 }
+      },
+      "description": "churn/applicants/grade는 비율, reputation/cash는 절대값."
+    },
+    "weight": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100,
+      "description": "가중 추첨용. 조건을 만족한 카드들 사이에서만 비교된다."
+    }
+  }
+}
