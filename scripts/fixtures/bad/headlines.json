@@ -1,0 +1,8 @@
+[
+  { "id": "h_0001", "situation": "BID_WON", "template": "{academy}, {teacher} 영입 성공", "tone": "GOOD", "weight": 10 },
+
+  { "id": "h_0002", "situation": "BID_TIED", "template": "{academy}, 동액 입찰로 갈렸다", "tone": "NEUTRAL", "weight": 10 },
+  { "id": "h_0001", "situation": "NO_BID", "template": "{academy}, 이번 학기는 조용하다", "tone": "NEUTRAL", "weight": 10 },
+  { "id": "h_0004", "situation": "BID_STOLEN", "template": "테스트강사, {rival}로 이적", "tone": "BAD", "weight": 10 },
+  { "id": "h_0005", "situation": "CASH_CRISIS", "template": "{academy} 자금 {n}까지 떨어져", "tone": "ANGRY", "weight": 10 }
+]

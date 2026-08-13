@@ -1,0 +1,5 @@
+[
+  { "id": "t_0101", "name": "가온", "subject": "KOREAN", "teaching": 4, "fame": 2, "askingPrice": 18, "trait": "TOP_CLASS_SPECIALIST", "blurb": "상위반을 맡길 만하다" },
+  { "id": "t_0102", "name": "나린", "subject": "MATH", "teaching": 3, "fame": 3, "askingPrice": 20, "trait": "FACTION", "blurb": "같은 과목 동료와 강하다" },
+  { "id": "t_0103", "name": "다올", "subject": "ENGLISH", "teaching": 2, "fame": 1, "askingPrice": 9, "trait": "BASIC_CLASS_SPECIALIST", "blurb": "기초반 이탈을 막는다" }
+]
