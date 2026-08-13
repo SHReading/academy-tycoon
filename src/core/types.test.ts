@@ -3,9 +3,12 @@ import type {
   Academy,
   Archetype,
   ClassTier,
+  Contract,
   EventCard,
+  EventEffect,
   GameState,
   HeadlineTemplate,
+  OperationOption,
   Subject,
   TeacherCard,
   Trait,
@@ -104,6 +107,40 @@ type _Trait = Assert<
 >;
 type _Archetype = Assert<Equal<Archetype, "FRANCHISE" | "LEGACY" | "SELECTIVE">>;
 type _ClassTier = Assert<Equal<ClassTier, "TOP" | "MID" | "BASIC">>;
-type _Action = Assert<Equal<Action["type"], "BID" | "ASSIGN" | "OPTION" | "SETTLE">>;
+type _Contract = Assert<
+  Equal<Contract, { teacherId: string; price: number; remainingTurns: number }>
+>;
+type _OperationOption = Assert<
+  Equal<OperationOption, "SELF_STUDY" | "COUNSELING" | "SCHOLARSHIP" | "TUITION_HIKE" | "NONE">
+>;
+type _EventEffect = Assert<Equal<EventEffect, EventCard["effect"]>>;
+type _Academy = Assert<
+  Equal<
+    Academy,
+    {
+      archetype: Archetype;
+      cash: number;
+      reputation: number;
+      applicants: number;
+      enrollment: number;
+      marketShare: number;
+      teachers: TeacherCard[];
+      assignments: Partial<Record<ClassTier, Partial<Record<Subject, string>>>>;
+      contracts: Contract[];
+      option: OperationOption;
+      lastBidTurn: number | null;
+      pendingEffect: EventEffect | null;
+    }
+  >
+>;
+type _Action = Assert<
+  Equal<
+    Action,
+    | { type: "BID"; teacherId: string; amount: number }
+      | { type: "ASSIGN"; teacherId: string; classTier: ClassTier }
+      | { type: "OPTION"; option: OperationOption }
+      | { type: "SETTLE" }
+  >
+>;
 
 type _RequiredTypesExist = [GameState, Academy, TurnResult];
