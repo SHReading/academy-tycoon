@@ -1,0 +1,4 @@
+[
+  { "id": "h_0101", "situation": "BID_WON", "template": "{academy}, {teacher} 영입 성공", "tone": "GOOD", "weight": 10 },
+  { "id": "h_0102", "situation": "NO_BID", "template": "{academy}, 이번 학기는 조용하다", "tone": "NEUTRAL", "weight": 5 }
+]

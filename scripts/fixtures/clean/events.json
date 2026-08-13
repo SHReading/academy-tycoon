@@ -1,0 +1,4 @@
+[
+  { "id": "e_0101", "trigger": { "minTurn": 2, "requires": "REPUTATION_BELOW_40" }, "headline": "게시판이 밤새 술렁였다", "effect": { "reputation": -3 }, "weight": 10 },
+  { "id": "e_0102", "trigger": { "minTurn": 1 }, "headline": "신학기 상담 문의가 몰린다", "effect": { "applicants": 0.1 }, "weight": 8 }
+]

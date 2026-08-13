@@ -1,0 +1,9 @@
+[
+  { "id": "e_0001", "trigger": { "minTurn": 1 }, "headline": "신학기 상담 문의가 몰린다", "effect": { "applicants": 0.1 }, "weight": 10 },
+
+  { "id": "e_0002", "trigger": { "maxTurn": 4 }, "headline": "발동 턴이 빠진 카드", "effect": { "reputation": -2 }, "weight": 10 },
+  { "id": "e_0003", "trigger": { "minTurn": 2 }, "headline": "효과가 비어 있는 카드", "effect": {}, "weight": 10 },
+  { "id": "e_0004", "trigger": { "minTurn": 2, "requires": "CASH_ABOVE_99" }, "headline": "없는 조건 코드를 쓴다", "effect": { "cash": -5 }, "weight": 10 },
+  { "id": "e_0005", "trigger": { "minTurn": 3 }, "headline": "가중치가 범위를 넘는다", "effect": { "reputation": 2 }, "weight": 200 },
+  { "id": "e_0006", "trigger": { "minTurn": 3 }, "headline": "이탈률 효과가 과하다", "effect": { "churn": 0.5 }, "weight": 10 }
+]
