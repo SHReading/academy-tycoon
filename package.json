@@ -11,7 +11,7 @@
     "test": "node --test",
     "validate:content": "node scripts/validate-content.ts",
     "sim": "node src/harness/simulate.ts",
-    "size": "vite build"
+    "size": "vite build && node scripts/report-size.mjs"
   },
   "devDependencies": {
     "typescript": "^7.0.2",
