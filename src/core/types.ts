@@ -29,6 +29,10 @@ export type EventEffect = {
   grade?: number;
 };
 
+export interface ScoreSink {
+  submit(run: { seed: string; archetype: string; share: number; turns: number }): Promise<void>;
+}
+
 export type TeacherCard = {
   id: string;
   name: string;

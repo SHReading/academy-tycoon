@@ -9,6 +9,7 @@ import type {
   GameState,
   HeadlineTemplate,
   OperationOption,
+  ScoreSink,
   Subject,
   TeacherCard,
   Trait,
@@ -114,6 +115,12 @@ type _OperationOption = Assert<
   Equal<OperationOption, "SELF_STUDY" | "COUNSELING" | "SCHOLARSHIP" | "TUITION_HIKE" | "NONE">
 >;
 type _EventEffect = Assert<Equal<EventEffect, EventCard["effect"]>>;
+type _ScoreSink = Assert<
+  Equal<
+    Parameters<ScoreSink["submit"]>[0],
+    { seed: string; archetype: string; share: number; turns: number }
+  >
+>;
 type _Academy = Assert<
   Equal<
     Academy,
