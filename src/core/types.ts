@@ -12,6 +12,23 @@ export type Trait =
   | "PICKY"
   | "FACTION";
 
+export type Contract = { teacherId: string; price: number; remainingTurns: number };
+
+export type OperationOption =
+  | "SELF_STUDY"
+  | "COUNSELING"
+  | "SCHOLARSHIP"
+  | "TUITION_HIKE"
+  | "NONE";
+
+export type EventEffect = {
+  reputation?: number;
+  cash?: number;
+  churn?: number;
+  applicants?: number;
+  grade?: number;
+};
+
 export type TeacherCard = {
   id: string;
   name: string;
@@ -39,13 +56,7 @@ export type EventCard = {
       | "TOP_CLASS_FULL";
   };
   headline: string;
-  effect: {
-    reputation?: number;
-    cash?: number;
-    churn?: number;
-    applicants?: number;
-    grade?: number;
-  };
+  effect: EventEffect;
   weight: number;
 };
 
@@ -79,6 +90,10 @@ export type Academy = {
   marketShare: number;
   teachers: TeacherCard[];
   assignments: Partial<Record<ClassTier, Partial<Record<Subject, string>>>>;
+  contracts: Contract[];
+  option: OperationOption;
+  lastBidTurn: number | null;
+  pendingEffect: EventEffect | null;
 };
 
 export type GameState = {
@@ -95,7 +110,7 @@ export type GameState = {
 export type Action =
   | { type: "BID"; teacherId: string; amount: number }
   | { type: "ASSIGN"; teacherId: string; classTier: ClassTier }
-  | { type: "OPTION"; option: string }
+  | { type: "OPTION"; option: OperationOption }
   | { type: "SETTLE" };
 
 export type TurnResult = {
