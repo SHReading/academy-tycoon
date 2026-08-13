@@ -48,11 +48,11 @@ test("hand calculation 1: base settlement follows steps 1 through 7", () => {
   const result = scoreTurn(input);
 
   for (const settled of result) {
-    assert.equal(settled.reputation, 26.8);
+    assert.equal(settled.reputation, 28);
     assert.equal(settled.applicants, 120);
-    assert.equal(settled.enrollment, 91.2);
-    assert.equal(settled.cash, 125.6);
-    assert.equal(settled.marketShare, 1 / 3);
+    assert.equal(settled.enrollment, 96);
+    assert.equal(settled.cash, 128);
+    closeTo(settled.marketShare, 1 / 3);
     assert.equal(settled.pendingEffect, null);
   }
   assert.deepEqual(input, snapshot);
@@ -89,8 +89,8 @@ test("hand calculation 2: per-teacher traits, counseling, and contracts stack", 
   for (const settled of result) {
     assert.equal(settled.reputation, 50.756);
     assert.equal(settled.applicants, 100);
-    closeTo(settled.enrollment, 105.17);
-    closeTo(settled.cash, 84.585);
+    closeTo(settled.enrollment, 107.9);
+    closeTo(settled.cash, 85.95);
     assert.deepEqual(settled.contracts, [{ teacherId: "top", price: 10, remainingTurns: 5 }]);
   }
 });
@@ -116,9 +116,9 @@ test("hand calculation 3: pending ratios and absolutes apply once", () => {
   for (const settled of result) {
     closeTo(settled.reputation, 34.49825);
     closeTo(settled.applicants, 91.8);
-    closeTo(settled.enrollment, 71.64072);
-    closeTo(settled.cash, 71.77545);
-    assert.equal(settled.marketShare, 1 / 3);
+    closeTo(settled.enrollment, 75.276);
+    closeTo(settled.cash, 74.0475);
+    closeTo(settled.marketShare, 1 / 3);
     assert.equal(settled.pendingEffect, null);
   }
 });
@@ -156,7 +156,16 @@ test("churn floor is applied before option and event ratios", () => {
     pendingEffect: { churn: -0.1 },
   });
   const [result] = scoreTurn(state([input, academy(), academy()]));
-  const expectedApplicants = 300 * ((result.reputation + 8) / ((result.reputation + 8) + 26.8 + 26.8)) * 1.2;
+  const expectedApplicants = 300 * ((result.reputation + 8) / ((result.reputation + 8) + 28 + 28)) * 1.2;
 
   closeTo(result.enrollment, expectedApplicants * (1 - 0.05 * 0.8 * 0.9));
+});
+
+test("class scores and reputation cannot fall below zero", () => {
+  const weak = academy({ archetype: "LEGACY", reputation: 10, enrollment: 200 });
+  const insolvent = academy({ reputation: -10 });
+  const [weakResult, insolventResult] = scoreTurn(state([weak, insolvent, academy()]));
+
+  assert.equal(weakResult.reputation, 8);
+  assert.equal(insolventResult.reputation, 0);
 });

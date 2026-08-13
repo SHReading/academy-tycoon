@@ -36,6 +36,8 @@ export const MIN_CHURN_RATE = 0.05;
 export const BASIC_SCORE_CHURN_REDUCTION = 0.005;
 export const TUITION_PER_STUDENT = 0.5;
 export const BASE_OPERATING_COST = 20;
+export const MIN_CLASS_SCORE = 0;
+export const MIN_REPUTATION = 0;
 
 export const TOP_SPECIALIST_TEACHING_BONUS = 1;
 export const MID_SPECIALIST_ENROLLMENT_MULTIPLIER = 1.15;
