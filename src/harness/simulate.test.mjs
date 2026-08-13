@@ -1,14 +1,9 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import {
-  chooseOption,
-  loadPool,
-  planAssignments,
-  playGame,
-  runBatch,
-} from "./simulate.ts";
+import { loadPool, planAssignments, playGame, runBatch } from "./simulate.ts";
 import { dealMarket, determineWinner, discountUnsold, syntheticPool } from "./setup.ts";
+import { decideAssignments } from "../core/ai.ts";
 import { mulberry32 } from "../core/rng.ts";
 
 const pool = () => syntheticPool(mulberry32(1), 60);
@@ -59,12 +54,17 @@ test("D-1 — 판별 시드는 seed + i 이고 리포트에 구간이 남는다"
 test("D-3 — NO_BID 는 한 번도 입찰하지 않는다", () => {
   const { pool: cards } = loadPool(60);
   for (const archetype of ["FRANCHISE", "LEGACY", "SELECTIVE"]) {
-    const outcome = playGame(7, archetype, "NO_BID", cards, [], {
-      assignments: (a) => planAssignments(a, ["TOP", "MID", "BASIC"]),
-      option: chooseOption,
-    });
+    const outcome = playGame(7, archetype, "NO_BID", cards, []);
     assert.equal(outcome.bidAttempts, 0, `${archetype} 가 입찰했다`);
     assert.equal(outcome.bidWins, 0);
+  }
+});
+
+test("D-3 — 나머지 전략은 실제로 입찰한다 (SELECTIVE 포함)", () => {
+  const { pool: cards } = loadPool(60);
+  for (const archetype of ["FRANCHISE", "LEGACY", "SELECTIVE"]) {
+    const outcome = playGame(7, archetype, "BASELINE", cards, []);
+    assert.ok(outcome.bidAttempts > 0, `${archetype} 가 한 번도 입찰하지 않았다`);
   }
 });
 
@@ -81,11 +81,17 @@ test("D-3 — MID_EXPAND 는 중위반을 먼저 채우고 TOP_HEAVY 는 상위�
   assert.equal(topFirst.TOP.MATH, "t_3");
 });
 
-test("A-8 — 자금이 위험하면 비용 0인 수강료 인상, 평판이 낮으면 상담", () => {
-  assert.equal(chooseOption(academy({ cash: 10 })), "TUITION_HIKE");
-  assert.equal(chooseOption(academy({ cash: 200, reputation: 40 })), "COUNSELING");
-  assert.equal(chooseOption(academy({ cash: 200, reputation: 60 })), "SELF_STUDY");
-  assert.equal(chooseOption(academy({ cash: 200, reputation: 60, archetype: "FRANCHISE" })), "SCHOLARSHIP");
+test("기본 반 순서로 부른 planAssignments 는 core/ai.ts 의 decideAssignments 와 같아야 한다", () => {
+  // 플레이어 전략만 반 순서를 바꾼다. 규칙이 갈라지면 여기서 걸린다.
+  const teachers = [
+    card("t_1", "KOREAN", 5),
+    card("t_2", "KOREAN", 3),
+    card("t_3", "MATH", 4),
+    card("t_4", "MATH", 4, 5),
+    card("t_5", "SCIENCE", 1),
+  ];
+  const target = academy({ teachers });
+  assert.deepEqual(planAssignments(target, ["TOP", "MID", "BASIC"]), decideAssignments(target));
 });
 
 test("I-2·I-4·I-5 — 시장은 4장, 초반엔 강의력 5 제외, 이월은 2장까지", () => {
