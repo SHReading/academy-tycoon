@@ -130,6 +130,19 @@ test("SETTLE scores the turn and stores one weighted event for the next turn", (
   assert.deepEqual(result.lastResult.headlines, []);
 });
 
+test("SETTLE draws events whose approved requires condition matches the settled player", () => {
+  const input = makeState();
+  input.events = [
+    { id: "e_0001", trigger: { minTurn: 1, requires: "REPUTATION_ABOVE_60" }, headline: "높은 평판 이벤트", effect: { cash: 1 }, weight: 1 },
+    { id: "e_0002", trigger: { minTurn: 1, requires: "REPUTATION_BELOW_40" }, headline: "낮은 평판 이벤트", effect: { cash: -1 }, weight: 1 },
+  ];
+
+  const result = reducer(input, { type: "SETTLE" });
+
+  assert.equal(result.lastResult.event.id, "e_0002");
+  assert.deepEqual(result.academies[2].pendingEffect, { cash: -1 });
+});
+
 test("SETTLE decides AI assignments and options before scoring", () => {
   const input = makeState();
   input.academies[0].reputation = 50;

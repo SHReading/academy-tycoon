@@ -6,6 +6,8 @@ import {
 // @ts-expect-error Node runs source tests directly and requires the .ts extension.
 import { decideAssignments, decideBid, decideOption } from "./ai.ts";
 // @ts-expect-error Node runs source tests directly and requires the .ts extension.
+import { isEventEligible } from "./events.ts";
+// @ts-expect-error Node runs source tests directly and requires the .ts extension.
 import { mulberry32 } from "./rng.ts";
 // @ts-expect-error Node runs source tests directly and requires the .ts extension.
 import { scoreTurn } from "./scoring.ts";
@@ -102,12 +104,7 @@ const settle = (state: GameState): GameState => {
     ),
   };
   const settled = scoreTurn(prepared);
-  const candidates = state.events.filter(
-    (event) =>
-      event.trigger.minTurn <= state.turn &&
-      (event.trigger.maxTurn ?? Infinity) >= state.turn &&
-      (event.trigger.requires === undefined || event.trigger.requires === "NONE"),
-  );
+  const candidates = state.events.filter((event) => isEventEligible(event, state, settled));
   const random = mulberry32(state.seed + state.turn)();
   const totalWeight = candidates.reduce((sum, event) => sum + event.weight, 0);
   let cursor = random * totalWeight;

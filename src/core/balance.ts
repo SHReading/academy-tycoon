@@ -52,3 +52,7 @@ export const LEGACY_BID_MULTIPLIER = 1.1;
 export const LEGACY_BID_CASH_LIMIT = 0.4;
 export const SELECTIVE_BID_MULTIPLIER = 1.3;
 export const SELECTIVE_BID_CASH_LIMIT = 0.3;
+
+export const EVENT_REPUTATION_LOW = 40;
+export const EVENT_REPUTATION_HIGH = 60;
+export const EVENT_CASH_LOW = 20;
