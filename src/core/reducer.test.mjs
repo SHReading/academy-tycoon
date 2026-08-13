@@ -59,13 +59,16 @@ test("BID resolves player, FRANCHISE, and LEGACY bids immediately within cash ca
   assert.equal(result.academies[2].lastBidTurn, 1);
 });
 
-test("BID leaves the unapproved SELECTIVE AI path inactive", () => {
+test("BID resolves the SELECTIVE AI target within its 30 percent cash cap", () => {
   const input = makeState();
   input.playerArchetype = "FRANCHISE";
   const result = reducer(input, { type: "BID", teacherId: "player", amount: 15 });
 
-  assert.deepEqual(result.academies[2].teachers, []);
-  assert.equal(result.academies[2].lastBidTurn, null);
+  assert.deepEqual(result.academies[2].teachers.map(({ id }) => id), ["fame"]);
+  assert.deepEqual(result.academies[2].contracts, [
+    { teacherId: "fame", price: 13, remainingTurns: 6 },
+  ]);
+  assert.equal(result.academies[2].lastBidTurn, 1);
 });
 
 test("BID can resolve at most once per academy each turn", () => {
@@ -83,6 +86,20 @@ test("LEGACY bid respects its existing 40 percent cash cap", () => {
   const result = reducer(input, { type: "BID", teacherId: "missing", amount: 0 });
 
   assert.deepEqual(result.academies[1].teachers, []);
+});
+
+test("PICKY accepts a player bid but excludes an ineligible academy from winning", () => {
+  const input = makeState();
+  input.academies[0].lastBidTurn = 1;
+  input.academies[1].lastBidTurn = 1;
+  input.academies[2].reputation = 44;
+  input.market = [teacher("picky", "MATH", 5, 5, 10, "PICKY")];
+
+  const result = reducer(input, { type: "BID", teacherId: "picky", amount: 20 });
+
+  assert.equal(result.academies[2].lastBidTurn, 1);
+  assert.deepEqual(result.academies[2].contracts, []);
+  assert.deepEqual(result.market.map(({ id }) => id), ["picky"]);
 });
 
 test("ASSIGN moves a teacher to its subject slot and OPTION updates the player academy", () => {
@@ -111,6 +128,25 @@ test("SETTLE scores the turn and stores one weighted event for the next turn", (
   assert.equal(player.option, "NONE");
   assert.equal(result.lastResult.event.id, "e_0002");
   assert.deepEqual(result.lastResult.headlines, []);
+});
+
+test("SETTLE decides AI assignments and options before scoring", () => {
+  const input = makeState();
+  input.academies[0].reputation = 50;
+  input.academies[0].teachers = [
+    teacher("f-low", "MATH", 3, 2, 10),
+    teacher("f-high", "MATH", 5, 1, 10),
+  ];
+  input.academies[1].teachers = [teacher("l", "ENGLISH", 4, 1, 10)];
+
+  const result = reducer(input, { type: "SETTLE" });
+  const franchise = result.lastResult.academies.find(({ archetype }) => archetype === "FRANCHISE");
+  const legacy = result.lastResult.academies.find(({ archetype }) => archetype === "LEGACY");
+
+  assert.deepEqual(franchise.assignments, { TOP: { MATH: "f-high" }, MID: { MATH: "f-low" } });
+  assert.equal(franchise.option, "SCHOLARSHIP");
+  assert.deepEqual(legacy.assignments, { TOP: { ENGLISH: "l" } });
+  assert.equal(legacy.option, "COUNSELING");
 });
 
 test("same seed and action sequence produces the same state 100 times", () => {
