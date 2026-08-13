@@ -31,4 +31,6 @@ test("balance constants match the approved settlement rules", async () => {
   assert.equal(balance.FRANCHISE_BID_MULTIPLIER, 1.2);
   assert.equal(balance.LEGACY_BID_MULTIPLIER, 1.1);
   assert.equal(balance.LEGACY_BID_CASH_LIMIT, 0.4);
+  assert.equal(balance.SELECTIVE_BID_MULTIPLIER, 1.3);
+  assert.equal(balance.SELECTIVE_BID_CASH_LIMIT, 0.3);
 });

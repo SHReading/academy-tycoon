@@ -48,3 +48,5 @@ export const PICKY_REPUTATION_MINIMUM = 45;
 export const FRANCHISE_BID_MULTIPLIER = 1.2;
 export const LEGACY_BID_MULTIPLIER = 1.1;
 export const LEGACY_BID_CASH_LIMIT = 0.4;
+export const SELECTIVE_BID_MULTIPLIER = 1.3;
+export const SELECTIVE_BID_CASH_LIMIT = 0.3;

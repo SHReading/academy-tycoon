@@ -1,67 +1,33 @@
 import {
-  BASE_OPERATING_COST,
   CONTRACT_TURNS,
-  FRANCHISE_BID_MULTIPLIER,
-  LEGACY_BID_CASH_LIMIT,
-  LEGACY_BID_MULTIPLIER,
   PICKY_REPUTATION_MINIMUM,
   // @ts-expect-error Node runs source tests directly and requires the .ts extension.
 } from "./balance.ts";
 // @ts-expect-error Node runs source tests directly and requires the .ts extension.
+import { decideAssignments, decideBid, decideOption } from "./ai.ts";
+// @ts-expect-error Node runs source tests directly and requires the .ts extension.
 import { mulberry32 } from "./rng.ts";
 // @ts-expect-error Node runs source tests directly and requires the .ts extension.
 import { scoreTurn } from "./scoring.ts";
-import type { Academy, Action, Archetype, GameState, TeacherCard } from "./types";
+import type { Action, Archetype, GameState } from "./types";
 
 const academyIndex = (state: GameState, archetype: Archetype): number =>
   state.academies.findIndex((academy) => academy.archetype === archetype);
-
-const bidLimit = (academy: Academy): number =>
-  academy.cash -
-  academy.contracts
-    .filter((contract) => contract.remainingTurns > 0)
-    .reduce((sum, contract) => sum + contract.price, 0) -
-  BASE_OPERATING_COST;
-
-const canBid = (teacher: TeacherCard, academy: Academy): boolean =>
-  teacher.trait !== "PICKY" || academy.reputation >= PICKY_REPUTATION_MINIMUM;
-
-const aiBid = (state: GameState, archetype: "FRANCHISE" | "LEGACY") => {
-  if (state.playerArchetype === archetype) return undefined;
-  const academy = state.academies[academyIndex(state, archetype)];
-  if (!academy || academy.lastBidTurn === state.turn) return undefined;
-  const multiplier = archetype === "FRANCHISE" ? FRANCHISE_BID_MULTIPLIER : LEGACY_BID_MULTIPLIER;
-  const limit = Math.min(
-    bidLimit(academy),
-    archetype === "LEGACY" ? academy.cash * LEGACY_BID_CASH_LIMIT : Infinity,
-  );
-  const priority = archetype === "FRANCHISE" ? "fame" : "teaching";
-  const teacher = [...state.market]
-    .filter((card) => canBid(card, academy))
-    .sort(
-      (left, right) =>
-        right[priority] - left[priority] ||
-        left.askingPrice - right.askingPrice ||
-        left.id.localeCompare(right.id),
-    )
-    .find((card) => Math.ceil(card.askingPrice * multiplier) <= limit);
-  if (!teacher) return undefined;
-  return { archetype, teacherId: teacher.id, amount: Math.ceil(teacher.askingPrice * multiplier) };
-};
 
 const resolveBid = (state: GameState, action: Extract<Action, { type: "BID" }>): GameState => {
   const playerIndex = academyIndex(state, state.playerArchetype);
   const player = state.academies[playerIndex];
   const teacher = state.market.find((card) => card.id === action.teacherId);
-  const aiBids = [aiBid(state, "FRANCHISE"), aiBid(state, "LEGACY")].filter(
-    (bid) => bid !== undefined,
-  );
+  const aiBids = state.academies.flatMap((academy) => {
+    if (academy.archetype === state.playerArchetype || academy.lastBidTurn === state.turn) return [];
+    const bid = decideBid(academy, state.market);
+    return bid ? [{ archetype: academy.archetype, ...bid }] : [];
+  });
   const playerBid =
     teacher &&
     player &&
     player.lastBidTurn !== state.turn &&
-    action.amount >= teacher.askingPrice &&
-    canBid(teacher, player)
+    action.amount >= teacher.askingPrice
       ? { archetype: state.playerArchetype, teacherId: teacher.id, amount: action.amount }
       : undefined;
   const bids = [...aiBids, ...(playerBid ? [playerBid] : [])];
@@ -71,16 +37,23 @@ const resolveBid = (state: GameState, action: Extract<Action, { type: "BID" }>):
 
   const wonIds = new Set<string>();
   for (const teacherId of new Set(bids.map((bid) => bid.teacherId))) {
+    const wonTeacher = state.market.find((card) => card.id === teacherId);
+    if (!wonTeacher) continue;
     const winner = bids
-      .filter((bid) => bid.teacherId === teacherId)
+      .filter(
+        (bid) =>
+          bid.teacherId === teacherId &&
+          (wonTeacher.trait !== "PICKY" ||
+            state.academies[academyIndex(state, bid.archetype)].reputation >=
+              PICKY_REPUTATION_MINIMUM),
+      )
       .sort(
         (left, right) =>
           right.amount - left.amount ||
           state.academies[academyIndex(state, right.archetype)].reputation -
             state.academies[academyIndex(state, left.archetype)].reputation,
       )[0];
-    const wonTeacher = state.market.find((card) => card.id === teacherId);
-    if (!winner || !wonTeacher) continue;
+    if (!winner) continue;
     const index = academyIndex(state, winner.archetype);
     academies[index] = {
       ...academies[index],
@@ -116,7 +89,19 @@ const assign = (state: GameState, action: Extract<Action, { type: "ASSIGN" }>): 
 };
 
 const settle = (state: GameState): GameState => {
-  const settled = scoreTurn(state);
+  const prepared = {
+    ...state,
+    academies: state.academies.map((academy) =>
+      academy.archetype === state.playerArchetype
+        ? academy
+        : {
+            ...academy,
+            assignments: decideAssignments(academy),
+            option: decideOption(academy),
+          },
+    ),
+  };
+  const settled = scoreTurn(prepared);
   const candidates = state.events.filter(
     (event) =>
       event.trigger.minTurn <= state.turn &&
