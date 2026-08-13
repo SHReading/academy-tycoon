@@ -20,6 +20,8 @@ type Report = {
   bidWinRate: number;
   gameLength: Record<string, number>;
   bankruptRate: number;
+  bankruptRateByArchetype: Record<string, number>;
+  bidsPerGameByArchetype: Record<string, number>;
   notes: string[];
 };
 
@@ -90,11 +92,16 @@ export function render(report: Report): string {
       ["전략", "승률"],
     ),
     "",
-    "## 아키타입별 승률 (플레이어가 잡았을 때)",
+    "## 아키타입별 (플레이어가 잡았을 때)",
     "",
     ...table(
-      Object.entries(report.winRateByArchetype).map(([name, value]) => [name, percent(value)]),
-      ["아키타입", "승률"],
+      Object.entries(report.winRateByArchetype).map(([name, value]) => [
+        name,
+        percent(value),
+        percent(report.bankruptRateByArchetype?.[name] ?? 0),
+        (report.bidsPerGameByArchetype?.[name] ?? 0).toFixed(2),
+      ]),
+      ["아키타입", "승률", "폐원률", "입찰 시도/판"],
     ),
     "",
     "## 추가 지표",
