@@ -38,8 +38,10 @@ P0를 건너뛴 대가로 **8/18 플레이테스트가 되돌릴 수 있는 마�
 다른 모든 트랙이 여기 타입에 의존한다. **A-1이 끝나기 전에 B·C·D를 시작하지 않는다.**
 
 ### A-1. 타입 + RNG (여기까지가 병렬 해금 조건)
-- `types.ts` — `GameState`, `Academy`, `TeacherCard`, `EventCard`, `Action`, `TurnResult`, `Archetype`, `ClassTier`, `Subject`, `Trait`
+- `types.ts` — `GameState`, `Academy`, `TeacherCard`, `EventCard`, `HeadlineTemplate`, `Action`, `TurnResult`, `Archetype`, `ClassTier`, `Subject`, `Trait`
   - `schema/*.json`과 필드명·enum이 **정확히 일치**해야 한다
+  - 스키마 3종의 `title`이 타입명이다 — `TeacherCard`·`EventCard`·`HeadlineTemplate`.
+    목록과 스키마가 어긋나면 **스키마가 맞다** (8/13 `HeadlineTemplate` 누락 발견해 추가)
 - `rng.ts` — mulberry32 시드 RNG. 같은 시드 → 같은 수열 테스트 포함
 - **완료 정의**: `npm run typecheck` 통과 + RNG 결정성 테스트 통과 + 타입이 스키마와 1:1 대응
 

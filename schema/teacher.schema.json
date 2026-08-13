@@ -51,7 +51,7 @@
         "PICKY",
         "FACTION"
       ],
-      "description": "MID_CLASS_SPECIALIST는 사람 승인 대기 중. 승인 전까지 생산에 사용하지 않는다."
+      "description": "6종 전부 8/13 사람 승인 완료. 콘텐츠 배치는 6종 균등 배분으로 생산한다."
     },
     "blurb": {
       "type": "string",
