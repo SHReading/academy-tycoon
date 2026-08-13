@@ -14,6 +14,8 @@ import {
   MEDIA_FIGURE_TEACHING_PENALTY,
   MID_SPECIALIST_ENROLLMENT_MULTIPLIER,
   MIN_CHURN_RATE,
+  MIN_CLASS_SCORE,
+  MIN_REPUTATION,
   OPERATION_MODIFIERS,
   SUBJECT_SLOT_COUNT,
   TOP_SPECIALIST_TEACHING_BONUS,
@@ -66,7 +68,7 @@ export function scoreTurn(state: GameState): Academy[] {
           CLASS_SCORE_MULTIPLIER[tier] -
         (SUBJECT_SLOT_COUNT - teachers.length) * EMPTY_SLOT_PENALTY;
       const archetype = tier === "TOP" ? ARCHETYPE_MODIFIERS[academy.archetype].score : 1;
-      return raw * archetype * option.score * pendingGrade;
+      return Math.max(MIN_CLASS_SCORE, raw * archetype * option.score * pendingGrade);
     };
     return { TOP: score("TOP"), MID: score("MID"), BASIC: score("BASIC") };
   });
@@ -80,11 +82,12 @@ export function scoreTurn(state: GameState): Academy[] {
   // ③ 평판
   const reputations = state.academies.map((academy, index) => {
     const modifier = ARCHETYPE_MODIFIERS[academy.archetype];
-    return (
+    return Math.max(
+      MIN_REPUTATION,
       academy.reputation * modifier.previousReputation +
-      results[index] * modifier.result +
-      OPERATION_MODIFIERS[academy.option].reputation +
-      (academy.pendingEffect?.reputation ?? 0)
+        results[index] * modifier.result +
+        OPERATION_MODIFIERS[academy.option].reputation +
+        (academy.pendingEffect?.reputation ?? 0),
     );
   });
 
