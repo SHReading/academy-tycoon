@@ -45,6 +45,30 @@ P0를 건너뛴 대가로 **8/18 플레이테스트가 되돌릴 수 있는 마�
 - `rng.ts` — mulberry32 시드 RNG. 같은 시드 → 같은 수열 테스트 포함
 - **완료 정의**: `npm run typecheck` 통과 + RNG 결정성 테스트 통과 + 타입이 스키마와 1:1 대응
 
+### A-1b. 구현 계약 (8/13 코디네이터 확정 — 밸런스 아님, 구조)
+
+트랙 B·D가 같이 쓰는 계약이다. **여기 정의된 이름을 그대로 쓴다.**
+
+```ts
+type Contract = { teacherId: string; price: number; remainingTurns: number }  // 낙찰가는 6턴 고정비
+type OperationOption =
+  | 'SELF_STUDY'     // 자습 감독 강화
+  | 'COUNSELING'     // 담임 상담 확대
+  | 'SCHOLARSHIP'    // 장학금 확대
+  | 'TUITION_HIKE'   // 수강료 인상
+  | 'NONE'           // 아무것도 안 함
+```
+
+`Academy`에 추가할 필드: `contracts: Contract[]`, `option: OperationOption`, `lastBidTurn: number | null`,
+`pendingEffect: EventEffect | null`. **`assignments`는 이미 있으니 재사용한다.**
+
+| 미정이던 것 | 확정 |
+|---|---|
+| `BID` 처리 | 리듀서 안에서 **즉시 낙찰까지 끝낸다.** AI 2사 입찰가는 05 문서 4절 손규칙(FRANCHISE ×1.2 / LEGACY ×1.1, 잔액 40% 상한)을 RNG와 함께 결정론적으로 계산. 최고가 낙찰, 동액이면 평판 우선. pending 상태를 따로 두지 않는다 |
+| 이벤트 추첨 | `SETTLE` 마지막에 `weight` 가중 추첨으로 1장. **RNG 소비는 정확히 1회** |
+| 이벤트 효과 적용 | 뽑은 효과를 `pendingEffect`에 저장하고 **다음 턴 계산에서 소비 후 null로 되돌린다.** reputation·cash는 절대값, churn·applicants·grade는 비율 |
+| `BASIC_CLASS_SPECIALIST` 이탈률 감소량 | **−0.03 (제안값)** — `balance.ts`에 두고 트랙 D 시뮬로 검증한다 |
+
 ### A-2. scoring.ts
 `01_GAME_DESIGN.md` 4절 단계 4의 **7단계를 순서대로 그대로** 구현한다. 순서를 바꾸지 않는다.
 - **완료 정의**: 손계산한 케이스 3개와 결과가 일치. 정산 1회 16ms 이내
