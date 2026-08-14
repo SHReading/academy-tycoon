@@ -64,24 +64,36 @@ export type EventCard = {
   weight: number;
 };
 
+export type HeadlineSituation =
+  | "BID_WON"
+  | "BID_LOST"
+  | "BID_STOLEN"
+  | "NO_BID"
+  | "TOP_CLASS_SURGE"
+  | "TOP_CLASS_EMPTY_SLOT"
+  | "REPUTATION_UP"
+  | "REPUTATION_DOWN"
+  | "CASH_CRISIS"
+  | "SHARE_TAKEOVER"
+  | "SHARE_LOST"
+  | "TUITION_RAISED"
+  | "SCHOLARSHIP_EXPANDED";
+
+export type HeadlineTone = "NEUTRAL" | "GOOD" | "BAD";
+
+export type Headline = { text: string; tone: HeadlineTone };
+
+export type TurnBid = {
+  teacherId: string;
+  amount: number;
+  winner?: Archetype;
+};
+
 export type HeadlineTemplate = {
   id: string;
-  situation:
-    | "BID_WON"
-    | "BID_LOST"
-    | "BID_STOLEN"
-    | "NO_BID"
-    | "TOP_CLASS_SURGE"
-    | "TOP_CLASS_EMPTY_SLOT"
-    | "REPUTATION_UP"
-    | "REPUTATION_DOWN"
-    | "CASH_CRISIS"
-    | "SHARE_TAKEOVER"
-    | "SHARE_LOST"
-    | "TUITION_RAISED"
-    | "SCHOLARSHIP_EXPANDED";
+  situation: HeadlineSituation;
   template: string;
-  tone?: "NEUTRAL" | "GOOD" | "BAD";
+  tone?: HeadlineTone;
   weight: number;
 };
 
@@ -108,6 +120,7 @@ export type GameState = {
   market: TeacherCard[];
   events: EventCard[];
   headlineTemplates: HeadlineTemplate[];
+  turnBid?: TurnBid;
   lastResult?: TurnResult;
 };
 
@@ -120,6 +133,7 @@ export type Action =
 export type TurnResult = {
   turn: number;
   academies: Academy[];
-  headlines: string[];
+  headlines: Headline[];
+  topClassScore: number;
   event?: EventCard;
 };

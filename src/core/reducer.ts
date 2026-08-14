@@ -8,9 +8,11 @@ import { decideAssignments, decideBid, decideOption } from "./ai.ts";
 // @ts-expect-error Node runs source tests directly and requires the .ts extension.
 import { isEventEligible } from "./events.ts";
 // @ts-expect-error Node runs source tests directly and requires the .ts extension.
+import { selectHeadlines } from "./headlines.ts";
+// @ts-expect-error Node runs source tests directly and requires the .ts extension.
 import { mulberry32 } from "./rng.ts";
 // @ts-expect-error Node runs source tests directly and requires the .ts extension.
-import { scoreTurn } from "./scoring.ts";
+import { scoreClass, scoreTurn } from "./scoring.ts";
 import type { Action, Archetype, GameState } from "./types";
 
 const academyIndex = (state: GameState, archetype: Archetype): number =>
@@ -38,6 +40,7 @@ const resolveBid = (state: GameState, action: Extract<Action, { type: "BID" }>):
   for (const bid of bids) academies[academyIndex(state, bid.archetype)].lastBidTurn = state.turn;
 
   const wonIds = new Set<string>();
+  let playerWinner: Archetype | undefined;
   for (const teacherId of new Set(bids.map((bid) => bid.teacherId))) {
     const wonTeacher = state.market.find((card) => card.id === teacherId);
     if (!wonTeacher) continue;
@@ -56,6 +59,7 @@ const resolveBid = (state: GameState, action: Extract<Action, { type: "BID" }>):
             state.academies[academyIndex(state, left.archetype)].reputation,
       )[0];
     if (!winner) continue;
+    if (playerBid?.teacherId === teacherId) playerWinner = winner.archetype;
     const index = academyIndex(state, winner.archetype);
     academies[index] = {
       ...academies[index],
@@ -67,7 +71,14 @@ const resolveBid = (state: GameState, action: Extract<Action, { type: "BID" }>):
     };
     wonIds.add(teacherId);
   }
-  return { ...state, academies, market: state.market.filter((card) => !wonIds.has(card.id)) };
+  return {
+    ...state,
+    academies,
+    market: state.market.filter((card) => !wonIds.has(card.id)),
+    ...(playerBid
+      ? { turnBid: { teacherId: playerBid.teacherId, amount: playerBid.amount, winner: playerWinner } }
+      : {}),
+  };
 };
 
 const assign = (state: GameState, action: Extract<Action, { type: "ASSIGN" }>): GameState => {
@@ -105,9 +116,9 @@ const settle = (state: GameState): GameState => {
   };
   const settled = scoreTurn(prepared);
   const candidates = state.events.filter((event) => isEventEligible(event, state, settled));
-  const random = mulberry32(state.seed + state.turn)();
+  const random = mulberry32(state.seed + state.turn);
   const totalWeight = candidates.reduce((sum, event) => sum + event.weight, 0);
-  let cursor = random * totalWeight;
+  let cursor = random() * totalWeight;
   const event = candidates.find((candidate) => (cursor -= candidate.weight) < 0);
   const academies = settled.map((academy) => ({ ...academy, option: "NONE" as const }));
   if (event) {
@@ -118,7 +129,17 @@ const settle = (state: GameState): GameState => {
     ...state,
     turn: state.turn + 1,
     academies,
-    lastResult: { turn: state.turn, academies: settled, headlines: [], event },
+    turnBid: undefined,
+    lastResult: {
+      turn: state.turn,
+      academies: settled,
+      headlines: selectHeadlines(state, settled, event, random),
+      topClassScore: scoreClass(
+        prepared.academies[academyIndex(prepared, state.playerArchetype)],
+        "TOP",
+      ),
+      event,
+    },
   };
 };
 
