@@ -102,7 +102,7 @@ const bidScreen = () => {
   return `
     <section class="screen">
       ${progress("강사 입찰 단계")}
-      <header class="screen-header compact">
+      <header class="screen-header compact bid-header">
         <div>
           <p class="eyebrow">블라인드 입찰</p>
           <h1>이번 시장의 강사</h1>
@@ -209,7 +209,7 @@ const resultScreen = () => {
         <h1>${title}</h1>
       </header>
       <div class="headlines" aria-label="이번 학기 주요 소식">
-        ${result.headlines.map(({ text, tone }) => `<p class="headline--${tone.toLowerCase()}">「${text}」</p>`).join("")}
+        ${result.headlines.map(({ text }) => `<p>「${text}」</p>`).join("")}
       </div>
       ${outcome ? `<p class="outcome outcome--${status.toLowerCase()}">${outcome}</p>` : ""}
       <dl class="result-stats" aria-label="보조 지표">
