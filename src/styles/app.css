@@ -18,6 +18,7 @@ button,
 input { font: inherit; }
 
 button { color: inherit; }
+button:disabled { cursor: not-allowed; opacity: .42; }
 
 button:focus-visible,
 input:focus-visible,
@@ -81,6 +82,25 @@ h1 {
   color: #625d55;
   line-height: 1.55;
 }
+
+.bid-header {
+  display: block;
+}
+
+.bid-header h1,
+.cash-chip { margin-bottom: 0; }
+
+.cash-chip {
+  display: inline-block;
+  flex: none;
+  margin-top: 10px;
+  border-radius: 999px;
+  padding: 8px 11px;
+  background: #fffdf8;
+  white-space: nowrap;
+}
+
+.screen-summary { color: #625d55; line-height: 1.55; }
 
 .academy-grid,
 .market-grid {
@@ -163,6 +183,9 @@ h1 {
   line-height: 1.35;
 }
 
+.ratings { display: grid; gap: 2px; }
+.ratings small { font-size: .72rem; letter-spacing: .02em; }
+
 .decision-panel {
   display: grid;
   grid-template-columns: 1fr 96px;
@@ -215,6 +238,50 @@ h1 {
   line-height: 1.35;
   opacity: .85;
 }
+
+.secondary-button {
+  display: flex;
+  min-height: 56px;
+  width: 100%;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  grid-column: 1 / -1;
+  border: 1px solid #fffdf866;
+  border-radius: 12px;
+  padding: 10px 18px;
+  background: transparent;
+  color: #fffdf8;
+  font-weight: 800;
+  text-align: left;
+  cursor: pointer;
+}
+
+.secondary-button small { font-weight: 500; line-height: 1.35; opacity: .75; }
+
+.teacher-roster {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  margin: 0 0 12px;
+  padding: 2px 2px 8px;
+}
+
+.roster-card {
+  min-width: 96px;
+  min-height: 48px;
+  border: 1px solid #bdb5a7;
+  border-radius: 11px;
+  padding: 7px 10px;
+  background: #fffdf8;
+  text-align: left;
+  cursor: pointer;
+}
+
+.roster-card small,
+.roster-card strong { display: block; }
+.roster-card small { margin-bottom: 2px; color: #625d55; }
+.roster-card.is-selected { border: 2px solid #146b68; background: #e9f3ef; }
 
 .class-board {
   overflow: hidden;
@@ -356,6 +423,19 @@ h1 {
 
 .headlines p:first-child { padding-top: 4px; }
 
+.outcome {
+  margin: 0 0 16px;
+  border-radius: 12px;
+  padding: 13px 15px;
+  background: #211f1b;
+  color: #fffdf8;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.outcome--won { background: #146b68; }
+.outcome--lost { background: #762d24; }
+
 .result-stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -383,6 +463,9 @@ h1 {
   .class-title small { display: block; margin-top: 4px; }
   .options-panel { grid-template-columns: repeat(2, 1fr); }
   .options-panel legend { grid-column: 1 / -1; }
+  .teacher-roster { flex-wrap: wrap; overflow: visible; }
+  .bid-header { display: flex; align-items: end; justify-content: space-between; gap: 12px; }
+  .cash-chip { margin-top: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
