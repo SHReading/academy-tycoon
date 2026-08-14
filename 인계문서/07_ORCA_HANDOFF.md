@@ -78,6 +78,30 @@ A-4·A-5·트랙 D·헤드라인·이벤트·초기 상태의 공백을 착수 �
 
 이 문서와 `SPEC_GAPS.md`가 어긋나면 **여기(07)가 맞다.** `SPEC_GAPS.md`는 빈자리를 채운 것이지 기존 확정값을 바꾸지 않는다.
 
+### A-6. 게임 진행 API (8/14 확정 — 구조, 새 수치 없음)
+
+**문제**: 초기 상태 생성·시장 보충·유찰 할인·폐원 추적·승자 판정이 `src/harness/`의 임시 코드에만 있다.
+트랙 B가 이걸 쓰려면 규칙을 복제하거나 하네스를 런타임에 끌어와야 하는데 **둘 다 금지**다.
+`GameState`에 폐원 연속 횟수와 종료 상태도 없다.
+
+**해결**: 진행 로직을 `src/core/`의 순수 API로 올린다. 트랙 B와 D가 같은 코드를 쓴다.
+
+```ts
+createInitialState(seed: number, playerArchetype: Archetype): GameState
+// 시작 강사 각 학원 2명, 3사의 강의력 합 동일 (I-3 승인)
+
+refillMarket(state: GameState): GameState
+// 시장 4장 유지. 유찰 이월 2장 상한(초과분은 요구연봉 높은 순 폐기),
+// 재등장 시 요구연봉 −10%, 하한은 원가의 50% (01 4절 42행 + I-5 승인)
+
+resolveGameEnd(state: GameState): GameState
+// 6턴 종료 시 점유율 1위가 승자. 자금 0 미만 2턴 연속이면 폐원 (01 2절)
+```
+
+`GameState` 추가 필드: `deficitStreak: number`, `status: 'PLAYING' | 'WON' | 'LOST'`, `winner: Archetype | null`.
+
+**트랙 D는 이 API가 들어온 뒤 자기 임시 사본을 지운다.** 같은 규칙이 두 벌 있으면 반드시 어긋난다.
+
 ### A-2. scoring.ts
 `01_GAME_DESIGN.md` 4절 단계 4의 **7단계를 순서대로 그대로** 구현한다. 순서를 바꾸지 않는다.
 - **완료 정의**: 손계산한 케이스 3개와 결과가 일치. 정산 1회 16ms 이내
