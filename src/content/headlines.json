@@ -18,5 +18,15 @@
   { "id": "h_0017", "situation": "NO_BID", "template": "무입찰 택한 {academy}, 다음 기회 주시", "tone": "NEUTRAL", "weight": 8 },
   { "id": "h_0018", "situation": "TOP_CLASS_SURGE", "template": "{academy} 상위반 성적 반등 뚜렷", "tone": "GOOD", "weight": 8 },
   { "id": "h_0019", "situation": "TOP_CLASS_EMPTY_SLOT", "template": "{subject} 빈자리 포함 상위반 {n}칸 공석", "tone": "BAD", "weight": 8 },
-  { "id": "h_0020", "situation": "CASH_CRISIS", "template": "잔액 {n}, {academy} 긴축 신호", "tone": "BAD", "weight": 8 }
+  { "id": "h_0020", "situation": "CASH_CRISIS", "template": "잔액 {n}, {academy} 긴축 신호", "tone": "BAD", "weight": 8 },
+  { "id": "h_0021", "situation": "REPUTATION_UP", "template": "{academy}, 신뢰 회복에 평판 {n} 상승", "tone": "GOOD", "weight": 9 },
+  { "id": "h_0022", "situation": "REPUTATION_DOWN", "template": "평판 {n} 하락, {academy} 대응 고심", "tone": "BAD", "weight": 9 },
+  { "id": "h_0023", "situation": "SHARE_TAKEOVER", "template": "{academy} 점유율 {n}%, {rival} 추월", "tone": "GOOD", "weight": 9 },
+  { "id": "h_0024", "situation": "SHARE_LOST", "template": "{rival} 선두, {academy} 점유율 {n}%", "tone": "BAD", "weight": 9 },
+  { "id": "h_0025", "situation": "TUITION_RAISED", "template": "수강료 올린 {academy}, 문의 흐름 주춤", "tone": "BAD", "weight": 9 },
+  { "id": "h_0026", "situation": "SCHOLARSHIP_EXPANDED", "template": "장학 폭 넓힌 {academy}, 관심 집중", "tone": "GOOD", "weight": 9 },
+  { "id": "h_0027", "situation": "NO_BID", "template": "{academy}, 영입 대신 내실 다지기", "tone": "NEUTRAL", "weight": 7 },
+  { "id": "h_0028", "situation": "BID_WON", "template": "{teacher} 합류, {academy} {subject} 강화", "tone": "GOOD", "weight": 7 },
+  { "id": "h_0029", "situation": "TOP_CLASS_SURGE", "template": "상위반 성적 뛰자 {academy} 분위기 반전", "tone": "GOOD", "weight": 7 },
+  { "id": "h_0030", "situation": "CASH_CRISIS", "template": "{academy} 자금 {n}, 지출 경계령", "tone": "BAD", "weight": 7 }
 ]
