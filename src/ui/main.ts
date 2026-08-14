@@ -1,4 +1,4 @@
-import { createInitialState } from "../core/game";
+import { createInitialState, refillMarket, resolveGameEnd } from "../core/game";
 import { reducer } from "../core/reducer";
 import type {
   Archetype,
@@ -40,6 +40,8 @@ const options: ReadonlyArray<readonly [OperationOption, string, string]> = [
   ["TUITION_HIKE", "수강료 인상", "매출은 늘지만 지원자와 평판이 줄어듭니다."],
   ["NONE", "아무것도 안 함", "비용 없이 이번 학기를 운영합니다."],
 ];
+
+const turnLabels = ["첫", "둘째", "셋째", "넷째", "다섯째", "마지막"];
 
 let screen = 0;
 let seed = 1;
@@ -184,27 +186,40 @@ const assignmentScreen = () => {
 };
 
 const resultScreen = () => {
+  const current = state;
   const academy = player();
-  const result = state?.lastResult;
-  if (!academy || !result) return academyScreen();
+  const result = current?.lastResult;
+  if (!current || !academy || !result) return academyScreen();
+  const status = current.status ?? "PLAYING";
+  const isOver = status !== "PLAYING";
+  const winner = academies.find(([archetype]) => archetype === current.winner)?.[1];
+  const title = status === "WON" ? "시장 정상" : isOver ? "게임 종료" : "교문 앞 소식";
+  const outcome = status === "WON"
+    ? "최종 점유율 선두로 승리했습니다."
+    : status === "LOST"
+      ? current.deficitStreak === 2
+        ? "두 학기 연속 적자로 폐원했습니다."
+        : `${winner ?? "경쟁 학원"}이 최종 점유율 선두를 차지했습니다.`
+      : "";
   return `
     <section class="screen result-screen">
       ${progress("학기 정산 결과 단계")}
       <header class="result-masthead">
-        <p class="eyebrow">학기 정산 속보</p>
-        <h1>교문 앞 소식</h1>
+        <p class="eyebrow">${turnLabels[result.turn - 1]} 학기 정산 속보</p>
+        <h1>${title}</h1>
       </header>
       <div class="headlines" aria-label="이번 학기 주요 소식">
         ${result.headlines.map(({ text, tone }) => `<p class="headline--${tone.toLowerCase()}">「${text}」</p>`).join("")}
       </div>
+      ${outcome ? `<p class="outcome outcome--${status.toLowerCase()}">${outcome}</p>` : ""}
       <dl class="result-stats" aria-label="보조 지표">
         <div><dt>시장 점유율</dt><dd>${Math.round(academy.marketShare * 100)}%</dd></div>
         <div><dt>평판</dt><dd>${Math.round(academy.reputation)}</dd></div>
         <div><dt>남은 자금</dt><dd>${Math.round(academy.cash)}</dd></div>
       </dl>
-      <button class="primary-button restart-button" data-reset>
-        새 판 시작
-        <small>한 번 누르면 학원 선택부터 즉시 다시 시작합니다.</small>
+      <button class="primary-button restart-button" ${isOver ? "data-restart" : "data-next"}>
+        ${isOver ? "같은 학원으로 다시 시작" : "다음 학기 시작"}
+        <small>${isOver ? "한 번 누르면 새 시장에서 즉시 다시 시작합니다." : "유찰 강사는 몸값을 낮추고 새 시장에 다시 나옵니다."}</small>
       </button>
     </section>
   `;
@@ -248,12 +263,18 @@ app.addEventListener("click", (event) => {
       classTier: button.dataset.tier as ClassTier,
     });
   } else if (button.dataset.settle !== undefined && state) {
-    state = reducer(state, { type: "SETTLE" });
+    state = resolveGameEnd(reducer(state, { type: "SETTLE" }));
     screen = 3;
-  } else if (button.dataset.reset !== undefined) {
+  } else if (button.dataset.next !== undefined && state) {
+    state = refillMarket(state);
+    selectedTeacherId = state.market[0]?.id ?? "";
+    screen = 1;
+  } else if (button.dataset.restart !== undefined && state) {
     seed += 1;
-    state = null;
-    screen = 0;
+    state = createInitialState(seed, state.playerArchetype);
+    selectedTeacherId = state.market[0]?.id ?? "";
+    selectedOwnedTeacherId = "";
+    screen = 1;
   }
 
   render();
