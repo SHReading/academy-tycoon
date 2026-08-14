@@ -41,6 +41,19 @@ const teaching = (teacher: TeacherCard, academy: Academy, tier: ClassTier): numb
     ? FACTION_TEACHING_BONUS
     : 0);
 
+export function scoreClass(academy: Academy, tier: ClassTier): number {
+  const teachers = assignedTeachers(academy, tier);
+  const raw =
+    teachers.reduce((sum, teacher) => sum + teaching(teacher, academy, tier), 0) *
+      CLASS_SCORE_MULTIPLIER[tier] -
+    (SUBJECT_SLOT_COUNT - teachers.length) * EMPTY_SLOT_PENALTY;
+  const archetype = tier === "TOP" ? ARCHETYPE_MODIFIERS[academy.archetype].score : 1;
+  return Math.max(
+    MIN_CLASS_SCORE,
+    raw * archetype * OPERATION_MODIFIERS[academy.option].score * (1 + (academy.pendingEffect?.grade ?? 0)),
+  );
+}
+
 export const allocateEnrollment = (enrollment: number): Record<ClassTier, number> => ({
   TOP: Math.min(
     Math.round((enrollment * CLASS_CAPACITY.TOP) / TOTAL_CAPACITY),
@@ -58,20 +71,11 @@ export const allocateEnrollment = (enrollment: number): Record<ClassTier, number
 
 export function scoreTurn(state: GameState): Academy[] {
   // ① 반별 성적
-  const scores = state.academies.map((academy) => {
-    const option = OPERATION_MODIFIERS[academy.option];
-    const pendingGrade = 1 + (academy.pendingEffect?.grade ?? 0);
-    const score = (tier: ClassTier) => {
-      const teachers = assignedTeachers(academy, tier);
-      const raw =
-        teachers.reduce((sum, teacher) => sum + teaching(teacher, academy, tier), 0) *
-          CLASS_SCORE_MULTIPLIER[tier] -
-        (SUBJECT_SLOT_COUNT - teachers.length) * EMPTY_SLOT_PENALTY;
-      const archetype = tier === "TOP" ? ARCHETYPE_MODIFIERS[academy.archetype].score : 1;
-      return Math.max(MIN_CLASS_SCORE, raw * archetype * option.score * pendingGrade);
-    };
-    return { TOP: score("TOP"), MID: score("MID"), BASIC: score("BASIC") };
-  });
+  const scores = state.academies.map((academy) => ({
+    TOP: scoreClass(academy, "TOP"),
+    MID: scoreClass(academy, "MID"),
+    BASIC: scoreClass(academy, "BASIC"),
+  }));
 
   // ② 입시 실적
   const results = state.academies.map((academy, index) => {

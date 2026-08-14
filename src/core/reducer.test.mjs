@@ -127,7 +127,27 @@ test("SETTLE scores the turn and stores one weighted event for the next turn", (
   assert.deepEqual(player.pendingEffect, { reputation: 3 });
   assert.equal(player.option, "NONE");
   assert.equal(result.lastResult.event.id, "e_0002");
-  assert.deepEqual(result.lastResult.headlines, []);
+  assert.deepEqual(result.lastResult.headlines, [
+    { text: "두 번째 이벤트 발생", tone: "GOOD" },
+  ]);
+});
+
+test("SETTLE selects three prioritized, bound headline templates with tone", () => {
+  const input = makeState();
+  input.academies[2].cash = 0;
+  input.headlineTemplates = [
+    { id: "h_0001", situation: "NO_BID", template: "{academy}, 이번 학기 영입 없어", tone: "NEUTRAL", weight: 1 },
+    { id: "h_0002", situation: "TOP_CLASS_EMPTY_SLOT", template: "상위반 {subject} 포함 {n}자리 공석", tone: "BAD", weight: 1 },
+    { id: "h_0003", situation: "CASH_CRISIS", template: "{academy} 잔액 {n}, 비상 운영", tone: "BAD", weight: 1 },
+  ];
+
+  const result = reducer(input, { type: "SETTLE" });
+
+  assert.deepEqual(result.lastResult.headlines, [
+    { text: "선발형 학원 잔액 11, 비상 운영", tone: "BAD" },
+    { text: "상위반 국어 포함 4자리 공석", tone: "BAD" },
+    { text: "선발형 학원, 이번 학기 영입 없어", tone: "NEUTRAL" },
+  ]);
 });
 
 test("SETTLE draws events whose approved requires condition matches the settled player", () => {
