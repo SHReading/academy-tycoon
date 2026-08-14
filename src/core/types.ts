@@ -83,6 +83,8 @@ export type HeadlineTone = "NEUTRAL" | "GOOD" | "BAD";
 
 export type Headline = { text: string; tone: HeadlineTone };
 
+export type GameStatus = "PLAYING" | "WON" | "LOST";
+
 export type TurnBid = {
   teacherId: string;
   amount: number;
@@ -120,6 +122,10 @@ export type GameState = {
   market: TeacherCard[];
   events: EventCard[];
   headlineTemplates: HeadlineTemplate[];
+  deck?: TeacherCard[];
+  deficitStreak?: number;
+  status?: GameStatus;
+  winner?: Archetype | null;
   turnBid?: TurnBid;
   lastResult?: TurnResult;
 };

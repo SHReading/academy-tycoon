@@ -2,6 +2,11 @@ export const TOTAL_TURNS = 6;
 export const MARKET_SIZE = 4;
 export const CONTRACT_TURNS = 6;
 export const UNSOLD_PRICE_MULTIPLIER = 0.9;
+export const EARLY_MARKET_TURNS = 2;
+export const MAX_EARLY_TEACHING = 4;
+export const STARTING_TEACHERS = 2;
+export const MAX_CARRIED_TEACHERS = 2;
+export const MIN_ASKING_PRICE_RATIO = 0.5;
 
 export const SUBJECT_SLOT_COUNT = 4;
 export const CLASS_SCORE_MULTIPLIER = { TOP: 3, MID: 1, BASIC: 1 } as const;
