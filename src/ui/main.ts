@@ -1,23 +1,23 @@
-import type { Archetype, ClassTier, Subject, TeacherCard } from "../core/types";
+import { createInitialState, refillMarket, resolveGameEnd } from "../core/game";
+import { reducer } from "../core/reducer";
+import type {
+  Archetype,
+  ClassTier,
+  GameState,
+  OperationOption,
+  Subject,
+  TeacherCard,
+} from "../core/types";
 import "../styles/app.css";
 
 const app = document.querySelector<HTMLElement>("#app");
 
-if (!app) {
-  throw new Error("게임 화면을 찾을 수 없습니다.");
-}
+if (!app) throw new Error("게임 화면을 찾을 수 없습니다.");
 
 const academies: ReadonlyArray<readonly [Archetype, string, string, string]> = [
   ["FRANCHISE", "확장형", "큰 자금으로 시장을 주도합니다.", "고정비가 높아 오래 끌수록 불리합니다."],
   ["LEGACY", "명문형", "높은 평판으로 학생을 지킵니다.", "새 강사를 데려오기 어렵습니다."],
   ["SELECTIVE", "선발형", "상위반 성과와 영입에 강합니다.", "자금과 정원이 가장 작습니다."],
-];
-
-const teachers: TeacherCard[] = [
-  { id: "dummy_korean", name: "국어 강사", subject: "KOREAN", teaching: 4, fame: 2, askingPrice: 18, trait: "TOP_CLASS_SPECIALIST", blurb: "상위반의 실적을 빠르게 끌어올립니다." },
-  { id: "dummy_math", name: "수학 강사", subject: "MATH", teaching: 3, fame: 4, askingPrice: 21, trait: "MEDIA_FIGURE", blurb: "인지도로 지원자 흐름을 만듭니다." },
-  { id: "dummy_english", name: "영어 강사", subject: "ENGLISH", teaching: 3, fame: 3, askingPrice: 16, trait: "MID_CLASS_SPECIALIST", blurb: "중위반의 등록을 안정시킵니다." },
-  { id: "dummy_science", name: "탐구 강사", subject: "SCIENCE", teaching: 2, fame: 2, askingPrice: 12, trait: "BASIC_CLASS_SPECIALIST", blurb: "기초반 이탈을 단단히 막습니다." },
 ];
 
 const subjectLabels: Record<Subject, string> = {
@@ -33,14 +33,26 @@ const tierLabels: Record<ClassTier, string> = {
   BASIC: "기초반",
 };
 
-const assignments: Record<ClassTier, Partial<Record<Subject, string>>> = {
-  TOP: { KOREAN: "국어 강사", MATH: "수학 강사" },
-  MID: { ENGLISH: "영어 강사" },
-  BASIC: { SCIENCE: "탐구 강사" },
-};
+const options: ReadonlyArray<readonly [OperationOption, string, string]> = [
+  ["SELF_STUDY", "자습 감독 강화", "이탈률을 낮추는 대신 운영비가 듭니다."],
+  ["COUNSELING", "담임 상담 확대", "성적과 평판을 함께 끌어올립니다."],
+  ["SCHOLARSHIP", "장학금 확대", "큰 비용으로 지원자를 더 모읍니다."],
+  ["TUITION_HIKE", "수강료 인상", "매출은 늘지만 지원자와 평판이 줄어듭니다."],
+  ["NONE", "아무것도 안 함", "비용 없이 이번 학기를 운영합니다."],
+];
+
+const turnLabels = ["첫", "둘째", "셋째", "넷째", "다섯째", "마지막"];
 
 let screen = 0;
-let selectedTeacherId = teachers[0].id;
+let seed = 1;
+let state: GameState | null = null;
+let selectedTeacherId = "";
+let selectedOwnedTeacherId = "";
+
+const player = () => state?.academies.find(({ archetype }) => archetype === state?.playerArchetype);
+const teacherById = (id: string) => player()?.teachers.find((teacher) => teacher.id === id);
+const dots = (value: number) => `${"●".repeat(value)}${"○".repeat(5 - value)}`;
+const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
 const progress = (label: string) => `
   <div class="progress" role="img" aria-label="${label}">
@@ -58,7 +70,7 @@ const academyScreen = () => `
     </header>
     <div class="academy-grid">
       ${academies.map(([archetype, title, strength, weakness]) => `
-        <button class="academy-card academy-card--${archetype.toLowerCase()}" data-screen="1">
+        <button class="academy-card academy-card--${archetype.toLowerCase()}" data-academy="${archetype}">
           <span class="card-kicker">${title}</span>
           <strong>${strength}</strong>
           <small>${weakness}</small>
@@ -69,106 +81,149 @@ const academyScreen = () => `
   </section>
 `;
 
-const bidScreen = () => `
-  <section class="screen">
-    ${progress("강사 입찰 단계")}
-    <header class="screen-header compact">
-      <p class="eyebrow">블라인드 입찰</p>
-      <h1>이번 시장의 강사</h1>
-      <p>내가 놓친 강사는 경쟁 학원의 전력이 됩니다.</p>
-    </header>
-    <div class="market-grid" aria-label="강사 시장">
-      ${teachers.map((teacher) => `
-        <button class="market-card ${teacher.id === selectedTeacherId ? "is-selected" : ""}" data-teacher="${teacher.id}" aria-pressed="${teacher.id === selectedTeacherId}">
-          <span class="subject">${subjectLabels[teacher.subject]}</span>
-          <strong>${teacher.name}</strong>
-          <span>${teacher.blurb}</span>
-          <small>최소 입찰 ${teacher.askingPrice}</small>
+const marketCard = (teacher: TeacherCard) => `
+  <button class="market-card ${teacher.id === selectedTeacherId ? "is-selected" : ""}" data-teacher="${teacher.id}" aria-pressed="${teacher.id === selectedTeacherId}">
+    <span class="subject">${subjectLabels[teacher.subject]}</span>
+    <strong>${teacher.name}</strong>
+    <span>${teacher.blurb}</span>
+    <span class="ratings" aria-label="강의력 ${teacher.teaching}, 인지도 ${teacher.fame}">
+      <small>강의력 ${dots(teacher.teaching)}</small>
+      <small>인지도 ${dots(teacher.fame)}</small>
+    </span>
+    <small>최소 입찰 ${teacher.askingPrice}</small>
+  </button>
+`;
+
+const bidScreen = () => {
+  const academy = player();
+  const selected = state?.market.find(({ id }) => id === selectedTeacherId) ?? state?.market[0];
+  if (!state || !academy || !selected) return academyScreen();
+  selectedTeacherId = selected.id;
+  return `
+    <section class="screen">
+      ${progress("강사 입찰 단계")}
+      <header class="screen-header compact">
+        <div>
+          <p class="eyebrow">블라인드 입찰</p>
+          <h1>이번 시장의 강사</h1>
+        </div>
+        <p class="cash-chip">가용 자금 <strong>${Math.round(academy.cash)}</strong></p>
+      </header>
+      <p class="screen-summary">내가 놓친 강사는 경쟁 학원의 전력이 됩니다.</p>
+      <div class="market-grid" aria-label="강사 시장">${state.market.map(marketCard).join("")}</div>
+      <form class="decision-panel" data-bid-form>
+        <label for="bid-amount">내 입찰가</label>
+        <input id="bid-amount" name="bid" type="number" min="${selected.askingPrice}" value="${selected.askingPrice}" inputmode="numeric" required>
+        <button class="primary-button" type="submit">
+          입찰 확정
+          <small>최고가가 낙찰되며, 낙찰가는 매 학기 고정비가 됩니다.</small>
         </button>
-      `).join("")}
-    </div>
-    <form class="decision-panel" data-bid-form>
-      <label for="bid-amount">내 입찰가</label>
-      <input id="bid-amount" name="bid" type="number" min="0" value="18" inputmode="numeric">
-      <button class="primary-button" type="submit">
-        입찰 확정
-        <small>최고가가 낙찰되며, 낙찰가는 매 학기 고정비가 됩니다.</small>
+        <button class="secondary-button" type="button" data-skip-bid>
+          이번 영입 건너뛰기
+          <small>지출을 아끼지만 경쟁 학원이 강사를 데려갈 수 있습니다.</small>
+        </button>
+      </form>
+    </section>
+  `;
+};
+
+const assignmentScreen = () => {
+  const academy = player();
+  if (!academy) return academyScreen();
+  const selected = teacherById(selectedOwnedTeacherId) ?? academy.teachers[0];
+  selectedOwnedTeacherId = selected?.id ?? "";
+  return `
+    <section class="screen wide-screen">
+      ${progress("반 편성과 운영 선택 단계")}
+      <header class="screen-header compact">
+        <p class="eyebrow">반 편성</p>
+        <h1>어느 반에 힘을 실을까요?</h1>
+        <p>강사를 고른 뒤 같은 과목 자리를 누르면 이동합니다.</p>
+      </header>
+      <div class="teacher-roster" aria-label="보유 강사">
+        ${academy.teachers.map((teacher) => `
+          <button class="roster-card ${teacher.id === selectedOwnedTeacherId ? "is-selected" : ""}" data-owned-teacher="${teacher.id}" aria-pressed="${teacher.id === selectedOwnedTeacherId}">
+            <small>${subjectLabels[teacher.subject]}</small><strong>${teacher.name}</strong>
+          </button>
+        `).join("")}
+      </div>
+      <div class="class-board">
+        ${(Object.keys(tierLabels) as ClassTier[]).map((tier) => `
+          <section class="class-row">
+            <div class="class-title">
+              <strong>${tierLabels[tier]}</strong>
+              <small>${tier === "TOP" ? "평판" : tier === "MID" ? "매출" : "이탈 방지"}에 유리</small>
+            </div>
+            <div class="slot-grid">
+              ${(Object.keys(subjectLabels) as Subject[]).map((subject) => {
+                const assigned = teacherById(academy.assignments[tier]?.[subject] ?? "");
+                const enabled = selected?.subject === subject;
+                return `
+                  <button class="teacher-slot ${assigned ? "is-filled" : ""}" type="button" data-tier="${tier}" ${enabled ? "" : "disabled"}>
+                    <small>${subjectLabels[subject]}</small><span>${assigned?.name ?? "빈 자리"}</span>
+                  </button>
+                `;
+              }).join("")}
+            </div>
+          </section>
+        `).join("")}
+      </div>
+      <fieldset class="options-panel">
+        <legend>운영 옵션 하나 선택</legend>
+        ${options.map(([value, title, description]) => `
+          <label class="option-card">
+            <input type="radio" name="option" value="${value}" ${academy.option === value ? "checked" : ""}>
+            <span><strong>${title}</strong><small>${description}</small></span>
+          </label>
+        `).join("")}
+      </fieldset>
+      <button class="primary-button" data-settle>
+        학기 정산하기
+        <small>배치와 운영 선택을 반영해 이번 학기 결과를 계산합니다.</small>
       </button>
-    </form>
-  </section>
-`;
+    </section>
+  `;
+};
 
-const assignmentScreen = () => `
-  <section class="screen wide-screen">
-    ${progress("반 편성과 운영 선택 단계")}
-    <header class="screen-header compact">
-      <p class="eyebrow">반 편성</p>
-      <h1>어느 반에 힘을 실을까요?</h1>
-      <p>빈 과목은 성적에 불리합니다. 강사를 눌러 배치하세요.</p>
-    </header>
-    <div class="class-board">
-      ${(Object.keys(tierLabels) as ClassTier[]).map((tier) => `
-        <section class="class-row">
-          <div class="class-title">
-            <strong>${tierLabels[tier]}</strong>
-            <small>${tier === "TOP" ? "평판" : tier === "MID" ? "매출" : "이탈 방지"}에 유리</small>
-          </div>
-          <div class="slot-grid">
-            ${(Object.keys(subjectLabels) as Subject[]).map((subject) => `
-              <button class="teacher-slot ${assignments[tier][subject] ? "is-filled" : ""}" type="button">
-                <small>${subjectLabels[subject]}</small>
-                <span>${assignments[tier][subject] ?? "빈 자리"}</span>
-              </button>
-            `).join("")}
-          </div>
-        </section>
-      `).join("")}
-    </div>
-    <fieldset class="options-panel">
-      <legend>운영 옵션 하나 선택</legend>
-      ${[
-        ["study", "자습 감독 강화", "이탈률 −20% · 비용 중"],
-        ["care", "담임 상담 확대", "성적 +5% · 평판 소폭 상승"],
-        ["scholarship", "장학금 확대", "상위권 지원자 +30% · 비용 대"],
-        ["tuition", "수강료 인상", "매출 +25% · 지원자 −15%"],
-        ["none", "아무것도 안 함", "비용 없이 이번 학기를 운영"],
-      ].map(([value, title, description], index) => `
-        <label class="option-card">
-          <input type="radio" name="option" value="${value}" ${index === 0 ? "checked" : ""}>
-          <span><strong>${title}</strong><small>${description}</small></span>
-        </label>
-      `).join("")}
-    </fieldset>
-    <button class="primary-button" data-screen="3">
-      학기 정산하기
-      <small>선택을 마치면 성적·평판·지원자·자금을 자동 계산합니다.</small>
-    </button>
-  </section>
-`;
-
-const resultScreen = () => `
-  <section class="screen result-screen">
-    ${progress("학기 정산 결과 단계")}
-    <header class="result-masthead">
-      <p class="eyebrow">학기 정산 속보</p>
-      <h1>교문 앞 소식</h1>
-    </header>
-    <div class="headlines" aria-label="이번 학기 주요 소식">
-      <p>「신임 강사 합류, 상위반 분위기 반전」</p>
-      <p>「중위반 정원 빠르게 차올라… 경쟁 학원 긴장」</p>
-      <p>「자습 관리 강화에 학부모 반응 호조」</p>
-    </div>
-    <dl class="result-stats" aria-label="보조 지표">
-      <div><dt>시장 점유율</dt><dd>38%</dd></div>
-      <div><dt>평판</dt><dd>64</dd></div>
-      <div><dt>남은 자금</dt><dd>52</dd></div>
-    </dl>
-    <button class="primary-button restart-button" data-screen="0">
-      새 판 시작
-      <small>한 번 누르면 학원 선택부터 즉시 다시 시작합니다.</small>
-    </button>
-  </section>
-`;
+const resultScreen = () => {
+  const current = state;
+  const academy = player();
+  const result = current?.lastResult;
+  if (!current || !academy || !result) return academyScreen();
+  const status = current.status ?? "PLAYING";
+  const isOver = status !== "PLAYING";
+  const winner = academies.find(([archetype]) => archetype === current.winner)?.[1];
+  const title = status === "WON" ? "시장 정상" : isOver ? "게임 종료" : "교문 앞 소식";
+  const outcome = status === "WON"
+    ? "최종 점유율 선두로 승리했습니다."
+    : status === "LOST"
+      ? current.deficitStreak === 2
+        ? "두 학기 연속 적자로 폐원했습니다."
+        : `${winner ?? "경쟁 학원"}이 최종 점유율 선두를 차지했습니다.`
+      : "";
+  return `
+    <section class="screen result-screen">
+      ${progress("학기 정산 결과 단계")}
+      <header class="result-masthead">
+        <p class="eyebrow">${turnLabels[result.turn - 1]} 학기 정산 속보</p>
+        <h1>${title}</h1>
+      </header>
+      <div class="headlines" aria-label="이번 학기 주요 소식">
+        ${result.headlines.map(({ text, tone }) => `<p class="headline--${tone.toLowerCase()}">「${text}」</p>`).join("")}
+      </div>
+      ${outcome ? `<p class="outcome outcome--${status.toLowerCase()}">${outcome}</p>` : ""}
+      <dl class="result-stats" aria-label="보조 지표">
+        <div><dt>시장 점유율</dt><dd>${Math.round(academy.marketShare * 100)}%</dd></div>
+        <div><dt>평판</dt><dd>${Math.round(academy.reputation)}</dd></div>
+        <div><dt>남은 자금</dt><dd>${Math.round(academy.cash)}</dd></div>
+      </dl>
+      <button class="primary-button restart-button" ${isOver ? "data-restart" : "data-next"}>
+        ${isOver ? "같은 학원으로 다시 시작" : "다음 학기 시작"}
+        <small>${isOver ? "한 번 누르면 새 시장에서 즉시 다시 시작합니다." : "유찰 강사는 몸값을 낮추고 새 시장에 다시 나옵니다."}</small>
+      </button>
+    </section>
+  `;
+};
 
 const screens = [academyScreen, bidScreen, assignmentScreen, resultScreen];
 
@@ -177,30 +232,66 @@ const render = () => {
   document.title = `${["학원 선택", "강사 입찰", "반 편성", "학기 정산"][screen]} · 학원 타이쿤`;
 };
 
+const showAssignment = (teacherId: string, amount: number) => {
+  if (!state) return;
+  state = reducer(state, { type: "BID", teacherId, amount });
+  selectedOwnedTeacherId = player()?.teachers[0]?.id ?? "";
+  screen = 2;
+  render();
+  scrollToTop();
+};
+
 app.addEventListener("click", (event) => {
   const button = (event.target as Element).closest<HTMLButtonElement>("button");
+  if (!button || button.matches("[type=submit]")) return;
 
-  if (!button) return;
-
-  if (button.dataset.teacher) {
+  if (button.dataset.academy) {
+    state = createInitialState(seed, button.dataset.academy as Archetype);
+    selectedTeacherId = state.market[0]?.id ?? "";
+    screen = 1;
+  } else if (button.dataset.teacher) {
     selectedTeacherId = button.dataset.teacher;
-    render();
+  } else if (button.dataset.skipBid !== undefined) {
+    showAssignment("", 0);
     return;
+  } else if (button.dataset.ownedTeacher) {
+    selectedOwnedTeacherId = button.dataset.ownedTeacher;
+  } else if (button.dataset.tier && state && selectedOwnedTeacherId) {
+    state = reducer(state, {
+      type: "ASSIGN",
+      teacherId: selectedOwnedTeacherId,
+      classTier: button.dataset.tier as ClassTier,
+    });
+  } else if (button.dataset.settle !== undefined && state) {
+    state = resolveGameEnd(reducer(state, { type: "SETTLE" }));
+    screen = 3;
+  } else if (button.dataset.next !== undefined && state) {
+    state = refillMarket(state);
+    selectedTeacherId = state.market[0]?.id ?? "";
+    screen = 1;
+  } else if (button.dataset.restart !== undefined && state) {
+    seed += 1;
+    state = createInitialState(seed, state.playerArchetype);
+    selectedTeacherId = state.market[0]?.id ?? "";
+    selectedOwnedTeacherId = "";
+    screen = 1;
   }
 
-  if (button.dataset.screen) {
-    screen = Number(button.dataset.screen);
-    render();
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
+  render();
+  scrollToTop();
+});
+
+app.addEventListener("change", (event) => {
+  const input = event.target;
+  if (!(input instanceof HTMLInputElement) || input.name !== "option" || !state) return;
+  state = reducer(state, { type: "OPTION", option: input.value as OperationOption });
+  render();
 });
 
 app.addEventListener("submit", (event) => {
-  if (!(event.target instanceof HTMLFormElement) || !event.target.matches("[data-bid-form]")) return;
+  if (!(event.target instanceof HTMLFormElement) || !event.target.matches("[data-bid-form]") || !state) return;
   event.preventDefault();
-  screen = 2;
-  render();
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  showAssignment(selectedTeacherId, Number(new FormData(event.target).get("bid")));
 });
 
 render();
