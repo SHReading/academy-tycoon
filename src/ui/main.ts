@@ -99,6 +99,7 @@ const bidScreen = () => {
   const selected = state?.market.find(({ id }) => id === selectedTeacherId) ?? state?.market[0];
   if (!state || !academy || !selected) return academyScreen();
   selectedTeacherId = selected.id;
+  const fixedCost = academy.contracts.reduce((sum, contract) => sum + contract.price, 0);
   return `
     <section class="screen">
       ${progress("강사 입찰 단계")}
@@ -107,7 +108,10 @@ const bidScreen = () => {
           <p class="eyebrow">블라인드 입찰</p>
           <h1>이번 시장의 강사</h1>
         </div>
-        <p class="cash-chip">가용 자금 <strong>${Math.round(academy.cash)}</strong></p>
+        <p class="cash-chip">
+          <span>가용 자금 <strong>${Math.round(academy.cash)}</strong></span>
+          <span>매 턴 고정비 <strong>−${fixedCost}</strong></span>
+        </p>
       </header>
       <p class="screen-summary">내가 놓친 강사는 경쟁 학원의 전력이 됩니다.</p>
       <div class="market-grid" aria-label="강사 시장">${state.market.map(marketCard).join("")}</div>
@@ -192,6 +196,7 @@ const resultScreen = () => {
   if (!current || !academy || !result) return academyScreen();
   const status = current.status ?? "PLAYING";
   const isOver = status !== "PLAYING";
+  const rivals = current.academies.filter(({ archetype }) => archetype !== current.playerArchetype);
   const winner = academies.find(([archetype]) => archetype === current.winner)?.[1];
   const title = status === "WON" ? "시장 정상" : isOver ? "게임 종료" : "교문 앞 소식";
   const outcome = status === "WON"
@@ -217,6 +222,17 @@ const resultScreen = () => {
         <div><dt>평판</dt><dd>${Math.round(academy.reputation)}</dd></div>
         <div><dt>남은 자금</dt><dd>${Math.round(academy.cash)}</dd></div>
       </dl>
+      <section class="rival-panel" aria-label="경쟁 학원 현황">
+        <h2>경쟁 학원 현황</h2>
+        <dl class="rival-stats">
+          ${rivals.map((rival) => `
+            <div>
+              <dt>${academies.find(([archetype]) => archetype === rival.archetype)?.[1]}</dt>
+              <dd><span>평판 <strong>${Math.round(rival.reputation)}</strong></span><span>점유율 <strong>${Math.round(rival.marketShare * 100)}%</strong></span></dd>
+            </div>
+          `).join("")}
+        </dl>
+      </section>
       <button class="primary-button restart-button" ${isOver ? "data-restart" : "data-next"}>
         ${isOver ? "같은 학원으로 다시 시작" : "다음 학기 시작"}
         <small>${isOver ? "한 번 누르면 새 시장에서 즉시 다시 시작합니다." : "유찰 강사는 몸값을 낮추고 새 시장에 다시 나옵니다."}</small>

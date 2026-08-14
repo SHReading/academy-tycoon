@@ -91,13 +91,19 @@ h1 {
 .cash-chip { margin-bottom: 0; }
 
 .cash-chip {
-  display: inline-block;
+  display: inline-flex;
+  gap: 10px;
   flex: none;
   margin-top: 10px;
   border-radius: 999px;
   padding: 8px 11px;
   background: #fffdf8;
   white-space: nowrap;
+}
+
+.cash-chip span + span {
+  border-left: 1px solid #d9d2c5;
+  padding-left: 10px;
 }
 
 .screen-summary { color: #625d55; line-height: 1.55; }
@@ -451,6 +457,33 @@ h1 {
 
 .result-stats dt { color: #625d55; font-size: .72rem; }
 .result-stats dd { margin: 3px 0 0; font-size: 1.25rem; font-weight: 850; }
+
+.rival-panel { margin: 8px 0 18px; }
+
+.rival-panel h2 {
+  margin: 0 0 8px;
+  color: #625d55;
+  font-size: .78rem;
+  letter-spacing: .08em;
+}
+
+.rival-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin: 0;
+}
+
+.rival-stats div {
+  border: 1px solid #d9d2c5;
+  border-radius: 10px;
+  padding: 10px;
+  background: #fffdf899;
+}
+
+.rival-stats dt { font-weight: 800; }
+.rival-stats dd { display: flex; gap: 10px; margin: 5px 0 0; color: #625d55; font-size: .78rem; }
+.rival-stats strong { color: #211f1b; }
 .restart-button { margin-top: auto; }
 
 @media (min-width: 680px) {
