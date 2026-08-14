@@ -18,6 +18,7 @@ const ACADEMY_NAMES: Record<Archetype, string> = {
   LEGACY: "명문형 학원",
   SELECTIVE: "선발형 학원",
 };
+const ARCHETYPE_ORDER: Archetype[] = ["FRANCHISE", "LEGACY", "SELECTIVE"];
 
 const SUBJECTS: Subject[] = ["KOREAN", "MATH", "ENGLISH", "SCIENCE"];
 const SUBJECT_NAMES: Record<Subject, string> = {
@@ -56,7 +57,13 @@ const bind = (template: string, values: Detected["values"]): string =>
   );
 
 const leader = (academies: Academy[]): Academy | undefined =>
-  [...academies].sort((left, right) => right.marketShare - left.marketShare)[0];
+  [...academies].sort(
+    (left, right) =>
+      right.marketShare - left.marketShare ||
+      right.reputation - left.reputation ||
+      right.cash - left.cash ||
+      ARCHETYPE_ORDER.indexOf(left.archetype) - ARCHETYPE_ORDER.indexOf(right.archetype),
+  )[0];
 
 const eventTone = (event: EventCard): Headline["tone"] => {
   const signs = Object.entries(event.effect)
@@ -106,7 +113,7 @@ export function selectHeadlines(
 
   if (state.lastResult) {
     const currentTopScore = scoreClass(before, "TOP");
-    if (currentTopScore > state.lastResult.topClassScore * 1.2) {
+    if (currentTopScore >= state.lastResult.topClassScore * 1.2) {
       detected.push({ situation: "TOP_CLASS_SURGE", values: { academy } });
     }
     const reputationChange = after.reputation - before.reputation;
