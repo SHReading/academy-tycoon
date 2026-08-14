@@ -128,6 +128,64 @@ test("settlement comparisons detect score, reputation, and share changes after t
   );
 });
 
+test("TOP_CLASS_SURGE includes an exact 20 percent increase", () => {
+  const state = makeState();
+  const card = teacher();
+  state.lastResult.topClassScore = 8.25;
+  state.academies[2] = academy("SELECTIVE", {
+    teachers: [card],
+    assignments: { TOP: { MATH: card.id } },
+  });
+
+  assert.equal(
+    one(state, state.academies, "TOP_CLASS_SURGE", "상위반 성적 20% 상승"),
+    "상위반 성적 20% 상승",
+  );
+});
+
+test("share transitions use reputation, cash, then archetype to break ties", () => {
+  const takeover = makeState();
+  takeover.academies[0] = academy("FRANCHISE", { marketShare: 0.5, reputation: 50 });
+  takeover.academies[1] = academy("LEGACY", { marketShare: 0.3, reputation: 50 });
+  takeover.academies[2] = academy("SELECTIVE", { marketShare: 0.2, reputation: 60 });
+  const takeoverSettled = takeover.academies.map((item) =>
+    item.archetype === "SELECTIVE" ? { ...item, marketShare: 0.5 } : item,
+  );
+  assert.equal(
+    one(takeover, takeoverSettled, "SHARE_TAKEOVER", "{rival} 제치고 점유율 {n}%"),
+    "확장형 학원 제치고 점유율 50%",
+  );
+
+  const lost = makeState();
+  lost.academies[0] = academy("FRANCHISE", { marketShare: 0.5, reputation: 50, cash: 40 });
+  lost.academies[1] = academy("LEGACY", { marketShare: 0, reputation: 50, cash: 50 });
+  lost.academies[2] = academy("SELECTIVE", { marketShare: 0.5, reputation: 50, cash: 60 });
+  const lostSettled = lost.academies.map((item) =>
+    item.archetype === "FRANCHISE"
+      ? { ...item, marketShare: 0.6 }
+      : item.archetype === "SELECTIVE"
+        ? { ...item, marketShare: 0.4 }
+        : item,
+  );
+  assert.equal(
+    one(lost, lostSettled, "SHARE_LOST", "{rival}에 밀려 점유율 {n}%"),
+    "확장형 학원에 밀려 점유율 40%",
+  );
+
+  const archetypeTie = makeState();
+  archetypeTie.academies[2].marketShare = 0.6;
+  const tied = archetypeTie.academies.map((item) => ({
+    ...item,
+    marketShare: 1 / 3,
+    reputation: 50,
+    cash: 50,
+  }));
+  assert.equal(
+    one(archetypeTie, tied, "SHARE_LOST", "{rival} 우선순위 승리"),
+    "확장형 학원 우선순위 승리",
+  );
+});
+
 test("operation options detect tuition hikes and scholarships", () => {
   const tuition = makeState();
   tuition.academies[2].option = "TUITION_HIKE";
