@@ -1,1 +1,22 @@
-[]
+[
+  { "id": "t_0001", "name": "글솔", "subject": "KOREAN", "teaching": 1, "fame": 2, "askingPrice": 9, "trait": "TOP_CLASS_SPECIALIST", "blurb": "상위반 독해의 맥을 짚는다" },
+  { "id": "t_0002", "name": "문결", "subject": "KOREAN", "teaching": 2, "fame": 3, "askingPrice": 15, "trait": "MID_CLASS_SPECIALIST", "blurb": "중위반 문장을 차분히 다듬는다" },
+  { "id": "t_0003", "name": "낱빛", "subject": "KOREAN", "teaching": 3, "fame": 2, "askingPrice": 15, "trait": "BASIC_CLASS_SPECIALIST", "blurb": "기초 개념을 짧게 풀어낸다" },
+  { "id": "t_0004", "name": "글봄", "subject": "KOREAN", "teaching": 3, "fame": 4, "askingPrice": 21, "trait": "MEDIA_FIGURE", "blurb": "화면에서도 존재감이 또렷하다" },
+  { "id": "t_0005", "name": "말숲", "subject": "KOREAN", "teaching": 4, "fame": 3, "askingPrice": 21, "trait": "PICKY", "blurb": "기준이 높아 준비된 반을 고른다" },
+  { "id": "t_0006", "name": "셈별", "subject": "MATH", "teaching": 1, "fame": 2, "askingPrice": 9, "trait": "FACTION", "blurb": "동료와 풀이 순서를 맞춘다" },
+  { "id": "t_0007", "name": "수결", "subject": "MATH", "teaching": 2, "fame": 3, "askingPrice": 15, "trait": "TOP_CLASS_SPECIALIST", "blurb": "상위 문제의 핵심을 빠르게 찾는다" },
+  { "id": "t_0008", "name": "셈온", "subject": "MATH", "teaching": 2, "fame": 2, "askingPrice": 12, "trait": "MID_CLASS_SPECIALIST", "blurb": "중위권 계산 습관을 바로잡는다" },
+  { "id": "t_0009", "name": "수담", "subject": "MATH", "teaching": 3, "fame": 3, "askingPrice": 18, "trait": "BASIC_CLASS_SPECIALIST", "blurb": "기초 연산의 빈틈을 메운다" },
+  { "id": "t_0010", "name": "셈솔", "subject": "MATH", "teaching": 4, "fame": 5, "askingPrice": 27, "trait": "MEDIA_FIGURE", "blurb": "설명 장면에 활기를 더한다" },
+  { "id": "t_0011", "name": "수해", "subject": "MATH", "teaching": 5, "fame": 5, "askingPrice": 30, "trait": "PICKY", "blurb": "반 분위기와 수준을 꼼꼼히 본다" },
+  { "id": "t_0012", "name": "소리봄", "subject": "ENGLISH", "teaching": 1, "fame": 3, "askingPrice": 12, "trait": "FACTION", "blurb": "같은 과목 동료와 호흡이 좋다" },
+  { "id": "t_0013", "name": "말새", "subject": "ENGLISH", "teaching": 2, "fame": 4, "askingPrice": 18, "trait": "TOP_CLASS_SPECIALIST", "blurb": "상위반 지문 구조를 선명히 잡는다" },
+  { "id": "t_0014", "name": "어휘솔", "subject": "ENGLISH", "teaching": 3, "fame": 2, "askingPrice": 15, "trait": "MID_CLASS_SPECIALIST", "blurb": "중위반 어휘를 단계별로 쌓는다" },
+  { "id": "t_0015", "name": "글온", "subject": "ENGLISH", "teaching": 3, "fame": 3, "askingPrice": 18, "trait": "BASIC_CLASS_SPECIALIST", "blurb": "기초 문장의 틀을 단단히 세운다" },
+  { "id": "t_0016", "name": "소리결", "subject": "ENGLISH", "teaching": 4, "fame": 4, "askingPrice": 24, "trait": "MEDIA_FIGURE", "blurb": "짧은 설명으로 시선을 모은다" },
+  { "id": "t_0017", "name": "별결", "subject": "SCIENCE", "teaching": 1, "fame": 2, "askingPrice": 9, "trait": "PICKY", "blurb": "수업 기준이 분명해 반을 가린다" },
+  { "id": "t_0018", "name": "탐온", "subject": "SCIENCE", "teaching": 3, "fame": 4, "askingPrice": 21, "trait": "FACTION", "blurb": "탐구 동료와 개념 연결이 빠르다" },
+  { "id": "t_0019", "name": "별솔", "subject": "SCIENCE", "teaching": 3, "fame": 1, "askingPrice": 12, "trait": "TOP_CLASS_SPECIALIST", "blurb": "상위반 자료 해석을 날카롭게 한다" },
+  { "id": "t_0020", "name": "탐빛", "subject": "SCIENCE", "teaching": 4, "fame": 3, "askingPrice": 21, "trait": "MID_CLASS_SPECIALIST", "blurb": "중위반 실험 맥락을 쉽게 잇는다" }
+]
