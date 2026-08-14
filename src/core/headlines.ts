@@ -113,7 +113,10 @@ export function selectHeadlines(
 
   if (state.lastResult) {
     const currentTopScore = scoreClass(before, "TOP");
-    if (currentTopScore >= state.lastResult.topClassScore * 1.2) {
+    if (
+      currentTopScore > state.lastResult.topClassScore &&
+      currentTopScore >= state.lastResult.topClassScore * 1.2
+    ) {
       detected.push({ situation: "TOP_CLASS_SURGE", values: { academy } });
     }
     const reputationChange = after.reputation - before.reputation;

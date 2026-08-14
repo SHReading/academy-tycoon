@@ -143,6 +143,16 @@ test("TOP_CLASS_SURGE includes an exact 20 percent increase", () => {
   );
 });
 
+test("TOP_CLASS_SURGE excludes an unchanged zero score", () => {
+  const state = makeState();
+  state.lastResult.topClassScore = 0;
+  state.headlineTemplates = [
+    { id: "h_0001", situation: "TOP_CLASS_SURGE", template: "상위반 성적 상승", weight: 1 },
+  ];
+
+  assert.deepEqual(selectHeadlines(state, state.academies, undefined, () => 0), []);
+});
+
 test("share transitions use reputation, cash, then archetype to break ties", () => {
   const takeover = makeState();
   takeover.academies[0] = academy("FRANCHISE", { marketShare: 0.5, reputation: 50 });
