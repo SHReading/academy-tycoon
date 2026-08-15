@@ -81,7 +81,7 @@ test("settlement comparisons detect score, reputation, and share changes after t
   const card = teacher();
   surge.academies[2] = academy("SELECTIVE", {
     teachers: [card],
-    assignments: { TOP: { MATH: card.id } },
+    assignments: { TOP: [card.id] },
   });
   assert.equal(one(surge, surge.academies, "TOP_CLASS_SURGE", "상위반 성적 급등"), "상위반 성적 급등");
 
@@ -134,7 +134,7 @@ test("TOP_CLASS_SURGE includes an exact 20 percent increase", () => {
   state.lastResult.topClassScore = 8.25;
   state.academies[2] = academy("SELECTIVE", {
     teachers: [card],
-    assignments: { TOP: { MATH: card.id } },
+    assignments: { TOP: [card.id] },
   });
 
   assert.equal(
@@ -196,11 +196,7 @@ test("share transitions use reputation, cash, then archetype to break ties", () 
   );
 });
 
-test("operation options detect tuition hikes and scholarships", () => {
-  const tuition = makeState();
-  tuition.academies[2].option = "TUITION_HIKE";
-  assert.equal(one(tuition, tuition.academies, "TUITION_RAISED", "수강료 인상"), "수강료 인상");
-
+test("operation options detect scholarships", () => {
   const scholarship = makeState();
   scholarship.academies[2].option = "SCHOLARSHIP";
   assert.equal(
@@ -248,9 +244,7 @@ test("event headline is unchanged and fixed last without consuming headline RNG"
 
 test("event effect signs map to GOOD, BAD, and mixed NEUTRAL tones", () => {
   const state = makeState();
-  state.academies[2].assignments = {
-    TOP: { KOREAN: "k", MATH: "m", ENGLISH: "e", SCIENCE: "s" },
-  };
+  state.academies[2].assignments = { TOP: ["k", "m"] };
   state.academies[2].lastBidTurn = 2;
   const event = (effect) => ({ id: "e_0001", trigger: { minTurn: 1 }, headline: "이벤트", effect, weight: 1 });
   const tone = (effect) => selectHeadlines(state, state.academies, event(effect), () => 0).at(-1)?.tone;

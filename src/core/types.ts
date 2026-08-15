@@ -1,25 +1,14 @@
 export type Archetype = "FRANCHISE" | "LEGACY" | "SELECTIVE";
 
-export type ClassTier = "TOP" | "MID" | "BASIC";
+export type ClassTier = "TOP" | "UPPER_MID" | "MID" | "BASIC";
 
 export type Subject = "KOREAN" | "MATH" | "ENGLISH" | "SCIENCE";
 
-export type Trait =
-  | "TOP_CLASS_SPECIALIST"
-  | "MID_CLASS_SPECIALIST"
-  | "BASIC_CLASS_SPECIALIST"
-  | "MEDIA_FIGURE"
-  | "PICKY"
-  | "FACTION";
+export type Trait = "CLASS_SPECIALIST" | "MEDIA_FIGURE" | "FACTION";
 
 export type Contract = { teacherId: string; price: number; remainingTurns: number };
 
-export type OperationOption =
-  | "SELF_STUDY"
-  | "COUNSELING"
-  | "SCHOLARSHIP"
-  | "TUITION_HIKE"
-  | "NONE";
+export type OperationOption = "SELF_STUDY" | "SCHOLARSHIP" | "NONE";
 
 export type EventEffect = {
   reputation?: number;
@@ -107,7 +96,7 @@ export type Academy = {
   enrollment: number;
   marketShare: number;
   teachers: TeacherCard[];
-  assignments: Partial<Record<ClassTier, Partial<Record<Subject, string>>>>;
+  assignments: Partial<Record<ClassTier, string[]>>;
   contracts: Contract[];
   option: OperationOption;
   lastBidTurn: number | null;
