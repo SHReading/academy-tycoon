@@ -15,9 +15,9 @@ const app = document.querySelector<HTMLElement>("#app");
 if (!app) throw new Error("게임 화면을 찾을 수 없습니다.");
 
 const academies: ReadonlyArray<readonly [Archetype, string, string, string]> = [
-  ["FRANCHISE", "확장형", "큰 자금으로 시장을 주도합니다.", "고정비가 높아 오래 끌수록 불리합니다."],
-  ["LEGACY", "명문형", "높은 평판으로 학생을 지킵니다.", "새 강사를 데려오기 어렵습니다."],
-  ["SELECTIVE", "선발형", "상위반 성과와 영입에 강합니다.", "자금과 정원이 가장 작습니다."],
+  ["FRANCHISE", "확장형", "큰돈으로 시장을 주도합니다.", "매 학기 월급 부담이 큽니다."],
+  ["LEGACY", "명문형", "높은 학원 인기로 학생을 지킵니다.", "새 강사를 데려오기 어렵습니다."],
+  ["SELECTIVE", "선발형", "상위반 성과와 영입에 강합니다.", "돈과 정원이 가장 작습니다."],
 ];
 
 const subjectLabels: Record<Subject, string> = {
@@ -34,11 +34,9 @@ const tierLabels: Record<ClassTier, string> = {
 };
 
 const options: ReadonlyArray<readonly [OperationOption, string, string]> = [
-  ["SELF_STUDY", "자습 감독 강화", "이탈률을 낮추는 대신 운영비가 듭니다."],
-  ["COUNSELING", "담임 상담 확대", "성적과 평판을 함께 끌어올립니다."],
-  ["SCHOLARSHIP", "장학금 확대", "큰 비용으로 지원자를 더 모읍니다."],
-  ["TUITION_HIKE", "수강료 인상", "매출은 늘지만 지원자와 평판이 줄어듭니다."],
-  ["NONE", "아무것도 안 함", "비용 없이 이번 학기를 운영합니다."],
+  ["SELF_STUDY", "자습 감독 강화", "돈을 써서 그만두는 학생을 줄입니다."],
+  ["SCHOLARSHIP", "장학금 확대", "돈을 써서 더 많은 학생을 모읍니다."],
+  ["NONE", "아무것도 안 함", "돈을 쓰지 않고 이번 학기를 운영합니다."],
 ];
 
 const turnLabels = ["첫", "둘째", "셋째", "넷째", "다섯째", "마지막"];
@@ -52,6 +50,14 @@ let selectedOwnedTeacherId = "";
 const player = () => state?.academies.find(({ archetype }) => archetype === state?.playerArchetype);
 const teacherById = (id: string) => player()?.teachers.find((teacher) => teacher.id === id);
 const dots = (value: number) => `${"●".repeat(value)}${"○".repeat(5 - value)}`;
+const stars = (value: number) => {
+  const filled = Math.max(0, Math.min(5, Math.round(value / 20)));
+  return `${"★".repeat(filled)}${"☆".repeat(5 - filled)}`;
+};
+const easyHeadline = (text: string) => text
+  .replaceAll("평판", "학원 인기")
+  .replaceAll("점유율", "학생 점유")
+  .replaceAll("자금", "돈");
 const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
 const progress = (label: string) => `
@@ -86,11 +92,11 @@ const marketCard = (teacher: TeacherCard) => `
     <span class="subject">${subjectLabels[teacher.subject]}</span>
     <strong>${teacher.name}</strong>
     <span>${teacher.blurb}</span>
-    <span class="ratings" aria-label="강의력 ${teacher.teaching}, 인지도 ${teacher.fame}">
-      <small>강의력 ${dots(teacher.teaching)}</small>
-      <small>인지도 ${dots(teacher.fame)}</small>
+    <span class="ratings" aria-label="실력 ${teacher.teaching}, 유명세 ${teacher.fame}">
+      <small>실력 ${dots(teacher.teaching)}</small>
+      <small>유명세 ${dots(teacher.fame)}</small>
     </span>
-    <small>최소 입찰 ${teacher.askingPrice}</small>
+    <small>원하는 월급 ${teacher.askingPrice}</small>
   </button>
 `;
 
@@ -109,18 +115,18 @@ const bidScreen = () => {
           <h1>이번 시장의 강사</h1>
         </div>
         <p class="cash-chip">
-          <span>가용 자금 <strong>${Math.round(academy.cash)}</strong></span>
-          <span>매 턴 고정비 <strong>−${fixedCost}</strong></span>
+          <span>가진 돈 <strong>${Math.round(academy.cash)}</strong></span>
+          <span>매 학기 월급 <strong>−${fixedCost}</strong></span>
         </p>
       </header>
       <p class="screen-summary">내가 놓친 강사는 경쟁 학원의 전력이 됩니다.</p>
       <div class="market-grid" aria-label="강사 시장">${state.market.map(marketCard).join("")}</div>
       <form class="decision-panel" data-bid-form>
-        <label for="bid-amount">내 입찰가</label>
+        <label for="bid-amount">제시할 월급</label>
         <input id="bid-amount" name="bid" type="number" min="${selected.askingPrice}" value="${selected.askingPrice}" inputmode="numeric" required>
         <button class="primary-button" type="submit">
-          입찰 확정
-          <small>최고가가 낙찰되며, 낙찰가는 매 학기 고정비가 됩니다.</small>
+          이 월급으로 제안
+          <small>가장 높은 월급을 제시하면 영입하며, 그 월급은 매 학기 나갑니다.</small>
         </button>
         <button class="secondary-button" type="button" data-skip-bid>
           이번 영입 건너뛰기
@@ -156,7 +162,7 @@ const assignmentScreen = () => {
           <section class="class-row">
             <div class="class-title">
               <strong>${tierLabels[tier]}</strong>
-              <small>${tier === "TOP" ? "평판" : tier === "MID" ? "매출" : "이탈 방지"}에 유리</small>
+              <small>${tier === "TOP" ? "학원 인기" : tier === "MID" ? "학생 수" : "학생 유지"}에 유리</small>
             </div>
             <div class="slot-grid">
               ${(Object.keys(subjectLabels) as Subject[]).map((subject) => {
@@ -182,8 +188,8 @@ const assignmentScreen = () => {
         `).join("")}
       </fieldset>
       <button class="primary-button" data-settle>
-        학기 정산하기
-        <small>배치와 운영 선택을 반영해 이번 학기 결과를 계산합니다.</small>
+        학기 결과 보기
+        <small>반 배치와 운영 선택을 반영한 결과를 봅니다.</small>
       </button>
     </section>
   `;
@@ -197,45 +203,50 @@ const resultScreen = () => {
   const status = current.status ?? "PLAYING";
   const isOver = status !== "PLAYING";
   const rivals = current.academies.filter(({ archetype }) => archetype !== current.playerArchetype);
+  const fixedCost = academy.contracts.reduce((sum, contract) => sum + contract.price, 0);
   const winner = academies.find(([archetype]) => archetype === current.winner)?.[1];
   const title = status === "WON" ? "시장 정상" : isOver ? "게임 종료" : "교문 앞 소식";
   const outcome = status === "WON"
-    ? "최종 점유율 선두로 승리했습니다."
+    ? "최종 학생 점유 선두로 승리했습니다."
     : status === "LOST"
       ? current.deficitStreak === 2
         ? "두 학기 연속 적자로 폐원했습니다."
-        : `${winner ?? "경쟁 학원"}이 최종 점유율 선두를 차지했습니다.`
+        : `${winner ?? "경쟁 학원"}이 최종 학생 점유 선두를 차지했습니다.`
       : "";
   return `
     <section class="screen result-screen">
-      ${progress("학기 정산 결과 단계")}
+      ${progress("학기 결과 단계")}
       <header class="result-masthead">
-        <p class="eyebrow">${turnLabels[result.turn - 1]} 학기 정산 속보</p>
+        <p class="eyebrow">${turnLabels[result.turn - 1]} 학기 결과 속보</p>
         <h1>${title}</h1>
       </header>
       <div class="headlines" aria-label="이번 학기 주요 소식">
-        ${result.headlines.map(({ text }) => `<p>「${text}」</p>`).join("")}
+        ${result.headlines.map(({ text }) => `<p>「${easyHeadline(text)}」</p>`).join("")}
       </div>
       ${outcome ? `<p class="outcome outcome--${status.toLowerCase()}">${outcome}</p>` : ""}
       <dl class="result-stats" aria-label="보조 지표">
-        <div><dt>시장 점유율</dt><dd>${Math.round(academy.marketShare * 100)}%</dd></div>
-        <div><dt>평판</dt><dd>${Math.round(academy.reputation)}</dd></div>
-        <div><dt>남은 자금</dt><dd>${Math.round(academy.cash)}</dd></div>
+        <div><dt>학생 점유</dt><dd>${Math.round(academy.marketShare * 100)}%</dd></div>
+        <div><dt>남은 돈</dt><dd>${Math.round(academy.cash)}</dd></div>
+        <div><dt>매 학기 월급</dt><dd>${fixedCost}</dd></div>
       </dl>
+      <p class="popularity">학원 인기 <strong>${stars(academy.reputation)}</strong></p>
       <section class="rival-panel" aria-label="경쟁 학원 현황">
         <h2>경쟁 학원 현황</h2>
         <dl class="rival-stats">
           ${rivals.map((rival) => `
             <div>
               <dt>${academies.find(([archetype]) => archetype === rival.archetype)?.[1]}</dt>
-              <dd><span>평판 <strong>${Math.round(rival.reputation)}</strong></span><span>점유율 <strong>${Math.round(rival.marketShare * 100)}%</strong></span></dd>
+              <dd>
+                <span>학원 인기 <strong>${stars(rival.reputation)}</strong></span>
+                <span>학생 점유 <i class="share-bar" role="progressbar" aria-label="학생 점유" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(rival.marketShare * 100)}"><span style="width:${rival.marketShare * 100}%"></span></i></span>
+              </dd>
             </div>
           `).join("")}
         </dl>
       </section>
       <button class="primary-button restart-button" ${isOver ? "data-restart" : "data-next"}>
         ${isOver ? "같은 학원으로 다시 시작" : "다음 학기 시작"}
-        <small>${isOver ? "한 번 누르면 새 시장에서 즉시 다시 시작합니다." : "유찰 강사는 몸값을 낮추고 새 시장에 다시 나옵니다."}</small>
+        <small>${isOver ? "한 번 누르면 새 시장에서 즉시 다시 시작합니다." : "영입되지 않은 강사는 원하는 월급을 낮춰 다시 나옵니다."}</small>
       </button>
     </section>
   `;
@@ -245,7 +256,7 @@ const screens = [academyScreen, bidScreen, assignmentScreen, resultScreen];
 
 const render = () => {
   app.innerHTML = screens[screen]();
-  document.title = `${["학원 선택", "강사 입찰", "반 편성", "학기 정산"][screen]} · 학원 타이쿤`;
+  document.title = `${["학원 선택", "강사 입찰", "반 편성", "학기 결과"][screen]} · 학원 타이쿤`;
 };
 
 const showAssignment = (teacherId: string, amount: number) => {

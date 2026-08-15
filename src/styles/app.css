@@ -458,6 +458,19 @@ h1 {
 .result-stats dt { color: #625d55; font-size: .72rem; }
 .result-stats dd { margin: 3px 0 0; font-size: 1.25rem; font-weight: 850; }
 
+.popularity {
+  margin: 0 0 10px;
+  color: #625d55;
+  font-size: .82rem;
+}
+
+.popularity strong {
+  margin-left: 6px;
+  color: #d7442f;
+  font-size: 1.1rem;
+  letter-spacing: .05em;
+}
+
 .rival-panel { margin: 8px 0 18px; }
 
 .rival-panel h2 {
@@ -482,8 +495,20 @@ h1 {
 }
 
 .rival-stats dt { font-weight: 800; }
-.rival-stats dd { display: flex; gap: 10px; margin: 5px 0 0; color: #625d55; font-size: .78rem; }
-.rival-stats strong { color: #211f1b; }
+.rival-stats dd { display: grid; gap: 6px; margin: 5px 0 0; color: #625d55; font-size: .78rem; }
+.rival-stats dd span { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.rival-stats strong { color: #d7442f; letter-spacing: .03em; }
+
+.share-bar {
+  display: block;
+  width: 58%;
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #d9d2c5;
+}
+
+.share-bar span { display: block; height: 100%; background: #146b68; }
 .restart-button { margin-top: auto; }
 
 @media (min-width: 680px) {
