@@ -1,5 +1,5 @@
 // @ts-expect-error Node runs source tests directly and requires the .ts extension.
-import { SUBJECT_SLOT_COUNT } from "./balance.ts";
+import { CLASS_TEACHER_LIMIT } from "./balance.ts";
 // @ts-expect-error Node runs source tests directly and requires the .ts extension.
 import { scoreClass } from "./scoring.ts";
 import type {
@@ -20,7 +20,6 @@ const ACADEMY_NAMES: Record<Archetype, string> = {
 };
 const ARCHETYPE_ORDER: Archetype[] = ["FRANCHISE", "LEGACY", "SELECTIVE"];
 
-const SUBJECTS: Subject[] = ["KOREAN", "MATH", "ENGLISH", "SCIENCE"];
 const SUBJECT_NAMES: Record<Subject, string> = {
   KOREAN: "국어",
   MATH: "수학",
@@ -85,7 +84,7 @@ export function selectHeadlines(
   if (!before || !after) return [];
 
   const academy = ACADEMY_NAMES[state.playerArchetype];
-  const emptySubjects = SUBJECTS.filter((subject) => before.assignments.TOP?.[subject] === undefined);
+  const emptyTopSlots = CLASS_TEACHER_LIMIT - (before.assignments.TOP?.length ?? 0);
   const detected: Detected[] = [];
   const bidTeacher = state.turnBid
     ? [...state.market, ...state.academies.flatMap((item) => item.teachers)].find(
@@ -156,19 +155,16 @@ export function selectHeadlines(
   if (after.cash < 20) {
     detected.push({ situation: "CASH_CRISIS", values: { academy, n: Math.round(after.cash) } });
   }
-  if (emptySubjects.length) {
+  if (emptyTopSlots > 0) {
     detected.push({
       situation: "TOP_CLASS_EMPTY_SLOT",
       values: {
         academy,
-        subject: SUBJECT_NAMES[emptySubjects[0]],
-        n: SUBJECT_SLOT_COUNT - Object.keys(before.assignments.TOP ?? {}).length,
+        n: emptyTopSlots,
       },
     });
   }
-  if (before.option === "TUITION_HIKE") {
-    detected.push({ situation: "TUITION_RAISED", values: { academy } });
-  } else if (before.option === "SCHOLARSHIP") {
+  if (before.option === "SCHOLARSHIP") {
     detected.push({ situation: "SCHOLARSHIP_EXPANDED", values: { academy } });
   }
   detected.sort((left, right) => PRIORITY.indexOf(left.situation) - PRIORITY.indexOf(right.situation));

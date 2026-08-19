@@ -21,7 +21,7 @@
     "subject": {
       "type": "string",
       "enum": ["KOREAN", "MATH", "ENGLISH", "SCIENCE"],
-      "description": "국어 / 수학 / 영어 / 탐구. 반의 과목 슬롯에 대응한다."
+      "description": "국어 / 수학 / 영어 / 탐구. 카드 분위기용 표시이며 게임 규칙에는 쓰지 않는다."
     },
     "teaching": {
       "type": "integer",
@@ -44,14 +44,11 @@
     "trait": {
       "type": "string",
       "enum": [
-        "TOP_CLASS_SPECIALIST",
-        "MID_CLASS_SPECIALIST",
-        "BASIC_CLASS_SPECIALIST",
+        "CLASS_SPECIALIST",
         "MEDIA_FIGURE",
-        "PICKY",
         "FACTION"
       ],
-      "description": "6종 전부 8/13 사람 승인 완료. 콘텐츠 배치는 6종 균등 배분으로 생산한다."
+      "description": "8/15 단순화 개정 3종. 콘텐츠 배치는 가능한 한 균등하게 배분한다."
     },
     "blurb": {
       "type": "string",

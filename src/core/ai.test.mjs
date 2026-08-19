@@ -41,12 +41,11 @@ test("decideBid uses each archetype's approved target and multiplier", () => {
   assert.deepEqual(decideBid(academy("SELECTIVE"), market), { teacherId: "combined", amount: 13 });
 });
 
-test("decideBid applies contract reserve, archetype cash caps, and PICKY eligibility", () => {
+test("decideBid applies contract reserve and archetype cash caps without trait eligibility", () => {
   const selective = academy("SELECTIVE", 100, 44);
   selective.contracts = [{ teacherId: "old", price: 20, remainingTurns: 2 }];
   const market = [
-    teacher("picky", "MATH", 10, 10, 10, "PICKY"),
-    teacher("over-cap", "KOREAN", 8, 8, 24),
+    teacher("over-cap", "KOREAN", 10, 10, 24, "CLASS_SPECIALIST"),
     teacher("affordable", "ENGLISH", 6, 6, 20),
   ];
 
@@ -57,7 +56,7 @@ test("decideBid applies contract reserve, archetype cash caps, and PICKY eligibi
   assert.equal(decideBid(franchise, [teacher("over-reserve", "MATH", 9, 1, 13)]), undefined);
 });
 
-test("decideAssignments fills subject slots by teaching, fame, and id without mutation", () => {
+test("decideAssignments fills four classes with two teachers each regardless of subject", () => {
   const input = academy("FRANCHISE");
   input.teachers = [
     teacher("d", "MATH", 3, 1, 10),
@@ -70,19 +69,19 @@ test("decideAssignments fills subject slots by teaching, fame, and id without mu
   const snapshot = structuredClone(input);
 
   assert.deepEqual(decideAssignments(input), {
-    TOP: { ENGLISH: "e", MATH: "b" },
-    MID: { MATH: "a" },
-    BASIC: { MATH: "aa" },
+    TOP: ["e", "b"],
+    UPPER_MID: ["a", "aa"],
+    MID: ["c", "d"],
   });
   assert.deepEqual(input, snapshot);
 });
 
-test("decideOption picks the first true rule and never NONE", () => {
+test("decideOption uses only self study, scholarship, and none", () => {
   const atRisk = academy("FRANCHISE", 29, 30);
   atRisk.contracts = [{ teacherId: "old", price: 10, remainingTurns: 1 }];
-  assert.equal(decideOption(atRisk), "TUITION_HIKE");
-  assert.equal(decideOption(academy("SELECTIVE", 30, 44)), "COUNSELING");
+  assert.equal(decideOption(atRisk), "NONE");
+  assert.equal(decideOption(academy("SELECTIVE", 30, 44)), "SELF_STUDY");
   assert.equal(decideOption(academy("FRANCHISE")), "SCHOLARSHIP");
-  assert.equal(decideOption(academy("LEGACY")), "COUNSELING");
+  assert.equal(decideOption(academy("LEGACY")), "NONE");
   assert.equal(decideOption(academy("SELECTIVE")), "SELF_STUDY");
 });

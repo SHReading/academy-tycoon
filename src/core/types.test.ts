@@ -96,23 +96,15 @@ type _HeadlineTemplate = Assert<
 
 type _Subject = Assert<Equal<Subject, "KOREAN" | "MATH" | "ENGLISH" | "SCIENCE">>;
 type _Trait = Assert<
-  Equal<
-    Trait,
-    | "TOP_CLASS_SPECIALIST"
-      | "MID_CLASS_SPECIALIST"
-      | "BASIC_CLASS_SPECIALIST"
-      | "MEDIA_FIGURE"
-      | "PICKY"
-      | "FACTION"
-  >
+  Equal<Trait, "CLASS_SPECIALIST" | "MEDIA_FIGURE" | "FACTION">
 >;
 type _Archetype = Assert<Equal<Archetype, "FRANCHISE" | "LEGACY" | "SELECTIVE">>;
-type _ClassTier = Assert<Equal<ClassTier, "TOP" | "MID" | "BASIC">>;
+type _ClassTier = Assert<Equal<ClassTier, "TOP" | "UPPER_MID" | "MID" | "BASIC">>;
 type _Contract = Assert<
   Equal<Contract, { teacherId: string; price: number; remainingTurns: number }>
 >;
 type _OperationOption = Assert<
-  Equal<OperationOption, "SELF_STUDY" | "COUNSELING" | "SCHOLARSHIP" | "TUITION_HIKE" | "NONE">
+  Equal<OperationOption, "SELF_STUDY" | "SCHOLARSHIP" | "NONE">
 >;
 type _EventEffect = Assert<Equal<EventEffect, EventCard["effect"]>>;
 type _ScoreSink = Assert<
@@ -132,7 +124,7 @@ type _Academy = Assert<
       enrollment: number;
       marketShare: number;
       teachers: TeacherCard[];
-      assignments: Partial<Record<ClassTier, Partial<Record<Subject, string>>>>;
+      assignments: Partial<Record<ClassTier, string[]>>;
       contracts: Contract[];
       option: OperationOption;
       lastBidTurn: number | null;

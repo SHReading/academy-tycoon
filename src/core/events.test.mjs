@@ -26,9 +26,7 @@ const state = () => ({
   academies: [
     academy("FRANCHISE", { cash: -1 }),
     academy("LEGACY", { marketShare: 0.6 }),
-    academy("SELECTIVE", { lastBidTurn: 1, assignments: {
-      TOP: { KOREAN: "k", MATH: "m", ENGLISH: "e", SCIENCE: "s" },
-    } }),
+    academy("SELECTIVE", { lastBidTurn: 1, assignments: { TOP: ["k", "m"] } }),
   ],
   market: [],
   events: [],

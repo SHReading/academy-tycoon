@@ -1,6 +1,6 @@
 import {
+  CLASS_TEACHER_LIMIT,
   CONTRACT_TURNS,
-  PICKY_REPUTATION_MINIMUM,
   // @ts-expect-error Node runs source tests directly and requires the .ts extension.
 } from "./balance.ts";
 // @ts-expect-error Node runs source tests directly and requires the .ts extension.
@@ -13,7 +13,7 @@ import { selectHeadlines } from "./headlines.ts";
 import { mulberry32 } from "./rng.ts";
 // @ts-expect-error Node runs source tests directly and requires the .ts extension.
 import { scoreClass, scoreTurn } from "./scoring.ts";
-import type { Action, Archetype, GameState } from "./types";
+import type { Academy, Action, Archetype, GameState } from "./types";
 
 const academyIndex = (state: GameState, archetype: Archetype): number =>
   state.academies.findIndex((academy) => academy.archetype === archetype);
@@ -45,13 +45,7 @@ const resolveBid = (state: GameState, action: Extract<Action, { type: "BID" }>):
     const wonTeacher = state.market.find((card) => card.id === teacherId);
     if (!wonTeacher) continue;
     const winner = bids
-      .filter(
-        (bid) =>
-          bid.teacherId === teacherId &&
-          (wonTeacher.trait !== "PICKY" ||
-            state.academies[academyIndex(state, bid.archetype)].reputation >=
-              PICKY_REPUTATION_MINIMUM),
-      )
+      .filter((bid) => bid.teacherId === teacherId)
       .sort(
         (left, right) =>
           right.amount - left.amount ||
@@ -86,16 +80,18 @@ const assign = (state: GameState, action: Extract<Action, { type: "ASSIGN" }>): 
   const player = state.academies[index];
   const teacher = player?.teachers.find((card) => card.id === action.teacherId);
   if (!player || !teacher) return state;
+  const target = player.assignments[action.classTier] ?? [];
+  if (!target.includes(teacher.id) && target.length >= CLASS_TEACHER_LIMIT) return state;
   const assignments = Object.fromEntries(
     Object.entries(player.assignments).map(([tier, slots]) => [
       tier,
-      Object.fromEntries(Object.entries(slots).filter(([, id]) => id !== teacher.id)),
+      slots.filter((id) => id !== teacher.id),
     ]),
-  );
-  assignments[action.classTier] = {
-    ...(assignments[action.classTier] ?? {}),
-    [teacher.subject]: teacher.id,
-  };
+  ) as Academy["assignments"];
+  assignments[action.classTier] = [
+    ...(assignments[action.classTier] ?? []),
+    teacher.id,
+  ];
   const academies = [...state.academies];
   academies[index] = { ...player, assignments };
   return { ...state, academies };

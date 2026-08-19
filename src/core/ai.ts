@@ -3,7 +3,7 @@ import {
   FRANCHISE_BID_MULTIPLIER,
   LEGACY_BID_CASH_LIMIT,
   LEGACY_BID_MULTIPLIER,
-  PICKY_REPUTATION_MINIMUM,
+  CLASS_TEACHER_LIMIT,
   SELECTIVE_BID_CASH_LIMIT,
   SELECTIVE_BID_MULTIPLIER,
   // @ts-expect-error Node runs source tests directly and requires the .ts extension.
@@ -38,9 +38,6 @@ export function decideBid(academy: Academy, market: TeacherCard[]) {
     cashLimit,
   );
   const teacher = [...market]
-    .filter(
-      (card) => card.trait !== "PICKY" || academy.reputation >= PICKY_REPUTATION_MINIMUM,
-    )
     .sort(
       (left, right) => metric(right) - metric(left) || left.askingPrice - right.askingPrice,
     )
@@ -61,11 +58,11 @@ export function decideAssignments(academy: Academy): Academy["assignments"] {
   );
 
   for (const teacher of teachers) {
-    const tier = (["TOP", "MID", "BASIC"] as const).find(
-      (candidate) => assignments[candidate]?.[teacher.subject] === undefined,
+    const tier = (["TOP", "UPPER_MID", "MID", "BASIC"] as const).find(
+      (candidate) => (assignments[candidate]?.length ?? 0) < CLASS_TEACHER_LIMIT,
     );
     if (!tier) continue;
-    assignments[tier] = { ...assignments[tier], [teacher.subject]: teacher.id };
+    assignments[tier] = [...(assignments[tier] ?? []), teacher.id];
   }
 
   return assignments;
@@ -73,10 +70,8 @@ export function decideAssignments(academy: Academy): Academy["assignments"] {
 
 export function decideOption(academy: Academy): OperationOption {
   if (academy.cash - activeContractCost(academy) - BASE_OPERATING_COST < 0) {
-    return "TUITION_HIKE";
+    return "NONE";
   }
-  if (academy.reputation < PICKY_REPUTATION_MINIMUM) return "COUNSELING";
   if (academy.archetype === "FRANCHISE") return "SCHOLARSHIP";
-  if (academy.archetype === "LEGACY") return "COUNSELING";
-  return "SELF_STUDY";
+  return academy.archetype === "SELECTIVE" ? "SELF_STUDY" : "NONE";
 }

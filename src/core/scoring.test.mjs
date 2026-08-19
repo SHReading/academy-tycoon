@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { performance } from "node:perf_hooks";
 
-const { allocateEnrollment, scoreTurn } = await import("./scoring.ts");
+const { allocateEnrollment, scoreClass, scoreTurn } = await import("./scoring.ts");
 const closeTo = (actual, expected) => assert.ok(Math.abs(actual - expected) < 1e-10);
 
 const academy = (overrides = {}) => ({
@@ -42,7 +42,7 @@ const teacher = (id, subject, trait, teaching = 2, fame = 1) => ({
   blurb: id,
 });
 
-test("hand calculation 1: base settlement follows steps 1 through 7", () => {
+test("hand calculation 1: empty classes score zero without a slot penalty", () => {
   const input = state([academy(), academy(), academy()]);
   const snapshot = structuredClone(input);
   const result = scoreTurn(input);
@@ -58,48 +58,61 @@ test("hand calculation 1: base settlement follows steps 1 through 7", () => {
   assert.deepEqual(input, snapshot);
 });
 
-test("enrollment is rounded and capped at the 20/40/40 class split", () => {
-  assert.deepEqual(allocateEnrollment(103), { TOP: 21, MID: 41, BASIC: 41 });
-  assert.deepEqual(allocateEnrollment(300), { TOP: 40, MID: 80, BASIC: 80 });
+test("enrollment uses the approved 20/30/30/20 class split", () => {
+  assert.deepEqual(allocateEnrollment(103), { TOP: 21, UPPER_MID: 31, MID: 31, BASIC: 21 });
+  assert.deepEqual(allocateEnrollment(300), { TOP: 40, UPPER_MID: 60, MID: 60, BASIC: 40 });
 });
 
-test("hand calculation 2: per-teacher traits, counseling, and contracts stack", () => {
+test("class score ignores subjects, caps teachers at two, and applies the class specialist bonus", () => {
   const teachers = [
-    teacher("top", "KOREAN", "TOP_CLASS_SPECIALIST"),
-    teacher("mid-1", "MATH", "MID_CLASS_SPECIALIST"),
-    teacher("mid-2", "ENGLISH", "MID_CLASS_SPECIALIST"),
-    teacher("basic", "SCIENCE", "BASIC_CLASS_SPECIALIST"),
+    teacher("specialist", "KOREAN", "CLASS_SPECIALIST", 2),
+    teacher("media", "KOREAN", "MEDIA_FIGURE", 3),
+    teacher("ignored", "KOREAN", "CLASS_SPECIALIST", 5),
   ];
+  const input = academy({ teachers, assignments: { TOP: teachers.map(({ id }) => id) } });
+
+  assert.equal(scoreClass(input, "TOP"), 15);
+  assert.equal(scoreClass(input, "UPPER_MID"), 0);
+});
+
+test("faction gains its existing bonus from a classmate without reading subjects", () => {
+  const teachers = [
+    teacher("faction", "KOREAN", "FACTION"),
+    teacher("classmate", "MATH", "MEDIA_FIGURE"),
+  ];
+  const input = academy({ teachers, assignments: { TOP: teachers.map(({ id }) => id) } });
+
+  assert.equal(scoreClass(input, "TOP"), 12);
+});
+
+test("hand calculation 2: four class scores and contracts settle with three options", () => {
+  const teachers = ["top", "upper", "mid", "basic"].map((id) =>
+    teacher(id, "MATH", "CLASS_SPECIALIST"),
+  );
   const legacy = academy({
     archetype: "LEGACY",
     cash: 70,
     reputation: 60,
     enrollment: 200,
     teachers,
-    assignments: {
-      TOP: { KOREAN: "top" },
-      MID: { MATH: "mid-1", ENGLISH: "mid-2" },
-      BASIC: { SCIENCE: "basic" },
-    },
+    assignments: { TOP: ["top"], UPPER_MID: ["upper"], MID: ["mid"], BASIC: ["basic"] },
     contracts: [{ teacherId: "top", price: 10, remainingTurns: 6 }],
-    option: "COUNSELING",
   });
   const result = scoreTurn(state([legacy, structuredClone(legacy), structuredClone(legacy)]));
 
   for (const settled of result) {
-    assert.equal(settled.reputation, 50.756);
+    closeTo(settled.reputation, 50.16);
     assert.equal(settled.applicants, 100);
-    closeTo(settled.enrollment, 107.9);
-    closeTo(settled.cash, 85.95);
+    closeTo(settled.enrollment, 81.5);
+    closeTo(settled.cash, 80.75);
     assert.deepEqual(settled.contracts, [{ teacherId: "top", price: 10, remainingTurns: 5 }]);
   }
 });
 
-test("hand calculation 3: pending ratios and absolutes apply once", () => {
+test("hand calculation 3: media and pending event effects apply once", () => {
   const teachers = [
     teacher("media", "KOREAN", "MEDIA_FIGURE", 3, 2),
-    teacher("faction-top", "MATH", "FACTION"),
-    teacher("faction-mid", "MATH", "FACTION"),
+    teacher("specialist", "KOREAN", "CLASS_SPECIALIST"),
   ];
   const selective = academy({
     archetype: "SELECTIVE",
@@ -107,32 +120,28 @@ test("hand calculation 3: pending ratios and absolutes apply once", () => {
     reputation: 45,
     enrollment: 50,
     teachers,
-    assignments: { TOP: { KOREAN: "media", MATH: "faction-top" }, MID: { MATH: "faction-mid" } },
-    option: "TUITION_HIKE",
+    assignments: { TOP: ["media", "specialist"] },
     pendingEffect: { reputation: 5, cash: -3, churn: -0.1, applicants: 0.2, grade: 0.1 },
   });
   const result = scoreTurn(state([selective, structuredClone(selective), structuredClone(selective)]));
 
   for (const settled of result) {
-    closeTo(settled.reputation, 34.49825);
-    closeTo(settled.applicants, 91.8);
-    closeTo(settled.enrollment, 75.276);
-    closeTo(settled.cash, 74.0475);
+    closeTo(settled.reputation, 37.86125);
+    closeTo(settled.applicants, 108);
+    closeTo(settled.enrollment, 88.56);
+    closeTo(settled.cash, 71.28);
     closeTo(settled.marketShare, 1 / 3);
     assert.equal(settled.pendingEffect, null);
   }
 });
 
 test("one settlement completes within 16ms", () => {
-  const teachers = [
-    teacher("top", "KOREAN", "TOP_CLASS_SPECIALIST", 5, 5),
-    teacher("mid", "MATH", "MID_CLASS_SPECIALIST", 5, 5),
-    teacher("basic", "ENGLISH", "BASIC_CLASS_SPECIALIST", 5, 5),
-    teacher("faction", "MATH", "FACTION", 5, 5),
-  ];
+  const teachers = ["a", "b", "c", "d"].map((id) =>
+    teacher(id, "MATH", "CLASS_SPECIALIST", 5, 5),
+  );
   const full = academy({
     teachers,
-    assignments: { TOP: { KOREAN: "top" }, MID: { MATH: "mid" }, BASIC: { ENGLISH: "basic" } },
+    assignments: { TOP: ["a", "b"], UPPER_MID: ["c", "d"] },
     contracts: teachers.map(({ id }) => ({ teacherId: id, price: 10, remainingTurns: 6 })),
     option: "SELF_STUDY",
     pendingEffect: { churn: -0.1, applicants: 0.2, grade: 0.1 },
@@ -144,19 +153,15 @@ test("one settlement completes within 16ms", () => {
 });
 
 test("churn floor is applied before option and event ratios", () => {
-  const strongBasic = ["KOREAN", "MATH", "ENGLISH", "SCIENCE"].map((subject) =>
-    teacher(`basic-${subject}`, subject, "BASIC_CLASS_SPECIALIST", 5, 1),
-  );
+  const teachers = ["a", "b"].map((id) => teacher(id, "SCIENCE", "CLASS_SPECIALIST", 5, 1));
   const input = academy({
-    teachers: strongBasic,
-    assignments: {
-      BASIC: Object.fromEntries(strongBasic.map(({ subject, id }) => [subject, id])),
-    },
+    teachers,
+    assignments: { BASIC: ["a", "b"] },
     option: "SELF_STUDY",
-    pendingEffect: { churn: -0.1 },
+    pendingEffect: { churn: -0.1, grade: 10 },
   });
   const [result] = scoreTurn(state([input, academy(), academy()]));
-  const expectedApplicants = 300 * ((result.reputation + 8) / ((result.reputation + 8) + 28 + 28)) * 1.2;
+  const expectedApplicants = 300 * ((result.reputation + 4) / ((result.reputation + 4) + 28 + 28)) * 1.2;
 
   closeTo(result.enrollment, expectedApplicants * (1 - 0.05 * 0.8 * 0.9));
 });
