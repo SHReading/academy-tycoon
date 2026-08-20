@@ -7,3 +7,6 @@ dist/
 
 # 격리 작업공간
 .worktrees/
+
+# 브라우저 자동화 산출물
+.playwright-mcp/

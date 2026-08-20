@@ -11,6 +11,9 @@ body {
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
+  /* 한국어는 어절 단위로 끊는다. 한 어절이 줄보다 길 때만 break-word 가 받는다 */
+  word-break: keep-all;
+  overflow-wrap: break-word;
   background: linear-gradient(90deg, #211f1b08 1px, transparent 1px) 0 0 / 24px 24px, #f2eee5;
 }
 
