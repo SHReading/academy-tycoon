@@ -29,8 +29,16 @@ const subjectLabels: Record<Subject, string> = {
 
 const tierLabels: Record<ClassTier, string> = {
   TOP: "상위반",
+  UPPER_MID: "중상위반",
   MID: "중위반",
   BASIC: "기초반",
+};
+
+const tierDescriptions: Record<ClassTier, string> = {
+  TOP: "학원 인기에 유리",
+  UPPER_MID: "인기와 학생 수 둘 다",
+  MID: "학생 수에 유리",
+  BASIC: "학생 유지에 유리",
 };
 
 const options: ReadonlyArray<readonly [OperationOption, string, string]> = [
@@ -140,15 +148,14 @@ const bidScreen = () => {
 const assignmentScreen = () => {
   const academy = player();
   if (!academy) return academyScreen();
-  const selected = teacherById(selectedOwnedTeacherId) ?? academy.teachers[0];
-  selectedOwnedTeacherId = selected?.id ?? "";
+  selectedOwnedTeacherId = teacherById(selectedOwnedTeacherId)?.id ?? academy.teachers[0]?.id ?? "";
   return `
     <section class="screen wide-screen">
       ${progress("반 편성과 운영 선택 단계")}
       <header class="screen-header compact">
         <p class="eyebrow">반 편성</p>
         <h1>어느 반에 힘을 실을까요?</h1>
-        <p>강사를 고른 뒤 같은 과목 자리를 누르면 이동합니다.</p>
+        <p>강사를 고른 뒤 원하는 반의 빈 자리를 누르면 이동합니다.</p>
       </header>
       <div class="teacher-roster" aria-label="보유 강사">
         ${academy.teachers.map((teacher) => `
@@ -162,15 +169,14 @@ const assignmentScreen = () => {
           <section class="class-row">
             <div class="class-title">
               <strong>${tierLabels[tier]}</strong>
-              <small>${tier === "TOP" ? "학원 인기" : tier === "MID" ? "학생 수" : "학생 유지"}에 유리</small>
+              <small>${tierDescriptions[tier]}</small>
             </div>
             <div class="slot-grid">
-              ${(Object.keys(subjectLabels) as Subject[]).map((subject) => {
-                const assigned = teacherById(academy.assignments[tier]?.[subject] ?? "");
-                const enabled = selected?.subject === subject;
+              ${Array.from({ length: 2 }, (_, index) => {
+                const assigned = teacherById(academy.assignments[tier]?.[index] ?? "");
                 return `
-                  <button class="teacher-slot ${assigned ? "is-filled" : ""}" type="button" data-tier="${tier}" ${enabled ? "" : "disabled"}>
-                    <small>${subjectLabels[subject]}</small><span>${assigned?.name ?? "빈 자리"}</span>
+                  <button class="teacher-slot ${assigned ? "is-filled" : ""}" type="button" data-tier="${tier}" aria-label="${tierLabels[tier]} ${index + 1}번 자리: ${assigned?.name ?? "빈 자리"}">
+                    <span>${assigned?.name ?? "빈 자리"}</span>
                   </button>
                 `;
               }).join("")}
