@@ -1,15 +1,15 @@
 [
-  { "id": "t_0001", "name": "가온", "subject": "KOREAN", "teaching": 4, "fame": 2, "askingPrice": 18, "trait": "TOP_CLASS_SPECIALIST", "blurb": "상위반을 맡길 만하다" },
+  { "id": "t_0001", "name": "가온", "subject": "KOREAN", "teaching": 4, "fame": 2, "askingPrice": 18, "trait": "CLASS_SPECIALIST", "blurb": "상위반을 맡길 만하다" },
 
   { "id": "t_0002", "name": "나린", "subject": "MATH", "teaching": 3, "fame": 2, "askingPrice": 15, "blurb": "판서가 정갈하다" },
   { "id": "t_0003", "name": "다올", "subject": "ENGLISH", "teaching": "4", "fame": 2, "askingPrice": 18, "trait": "FACTION", "blurb": "독해 진도가 빠르다" },
 
-  { "id": "t_0004", "name": "라온", "subject": "SCIENCE", "teaching": 1, "fame": 1, "askingPrice": 40, "trait": "PICKY", "blurb": "몸값이 유난히 높다" },
+  { "id": "t_0004", "name": "라온", "subject": "SCIENCE", "teaching": 1, "fame": 1, "askingPrice": 40, "trait": "MEDIA_FIGURE", "blurb": "몸값이 유난히 높다" },
   { "id": "t_0005", "name": "마루", "subject": "MATH", "teaching": 7, "fame": 2, "askingPrice": 24, "trait": "MEDIA_FIGURE", "blurb": "강의력이 범위를 넘는다" },
-  { "id": "x_0006", "name": "바다", "subject": "KOREAN", "teaching": 3, "fame": 3, "askingPrice": 18, "trait": "MID_CLASS_SPECIALIST", "blurb": "아이디 형식이 틀렸다" },
+  { "id": "x_0006", "name": "바다", "subject": "KOREAN", "teaching": 3, "fame": 3, "askingPrice": 18, "trait": "CLASS_SPECIALIST", "blurb": "아이디 형식이 틀렸다" },
 
-  { "id": "t_0001", "name": "사랑", "subject": "ENGLISH", "teaching": 2, "fame": 2, "askingPrice": 12, "trait": "BASIC_CLASS_SPECIALIST", "blurb": "아이디가 겹친 카드" },
-  { "id": "t_0008", "name": "아름", "subject": "KOREAN", "teaching": 4, "fame": 2, "askingPrice": 18, "trait": "TOP_CLASS_SPECIALIST", "blurb": "상위반을, 맡길 만하다!" },
+  { "id": "t_0001", "name": "사랑", "subject": "ENGLISH", "teaching": 2, "fame": 2, "askingPrice": 12, "trait": "FACTION", "blurb": "아이디가 겹친 카드" },
+  { "id": "t_0008", "name": "아름", "subject": "KOREAN", "teaching": 4, "fame": 2, "askingPrice": 18, "trait": "CLASS_SPECIALIST", "blurb": "상위반을, 맡길 만하다!" },
 
   { "id": "t_0009", "name": "자람", "subject": "MATH", "teaching": 3, "fame": 3, "askingPrice": 18, "trait": "FACTION", "blurb": "조합 중복 하나" },
   { "id": "t_0010", "name": "차미", "subject": "MATH", "teaching": 3, "fame": 3, "askingPrice": 18, "trait": "FACTION", "blurb": "조합 중복 둘" },
@@ -19,5 +19,5 @@
   { "id": "t_0014", "name": "하늘", "subject": "MATH", "teaching": 3, "fame": 3, "askingPrice": 18, "trait": "FACTION", "blurb": "조합 중복 여섯" },
 
   { "id": "t_0015", "name": "무지개학원", "subject": "SCIENCE", "teaching": 2, "fame": 3, "askingPrice": 15, "trait": "MEDIA_FIGURE", "blurb": "금칙어가 이름에 있다" },
-  { "id": "t_0016", "name": "누리", "subject": "ENGLISH", "teaching": 3, "fame": 1, "askingPrice": 12, "trait": "PICKY", "blurb": "별빛에듀 출신 강사" }
+  { "id": "t_0016", "name": "누리", "subject": "ENGLISH", "teaching": 3, "fame": 1, "askingPrice": 12, "trait": "MEDIA_FIGURE", "blurb": "별빛에듀 출신 강사" }
 ]

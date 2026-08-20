@@ -70,15 +70,11 @@ test("D-3 — 나머지 전략은 실제로 입찰한다 (SELECTIVE 포함)", ()
 
 test("D-3 — MID_EXPAND 는 중위반을 먼저 채우고 TOP_HEAVY 는 상위반을 먼저 채운다", () => {
   const teachers = [card("t_1", "KOREAN", 5), card("t_2", "KOREAN", 3), card("t_3", "MATH", 4)];
-  const topFirst = planAssignments(academy({ teachers }), ["TOP", "MID", "BASIC"]);
-  const midFirst = planAssignments(academy({ teachers }), ["MID", "TOP", "BASIC"]);
+  const topFirst = planAssignments(academy({ teachers }), ["TOP", "UPPER_MID", "MID", "BASIC"]);
+  const midFirst = planAssignments(academy({ teachers }), ["MID", "UPPER_MID", "TOP", "BASIC"]);
 
-  assert.equal(topFirst.TOP.KOREAN, "t_1");
-  assert.equal(topFirst.MID.KOREAN, "t_2");
-  assert.equal(midFirst.MID.KOREAN, "t_1");
-  assert.equal(midFirst.TOP.KOREAN, "t_2");
-  // 강의력 내림차순이므로 같은 과목이면 좋은 강사가 먼저 놓인 반을 가져간다
-  assert.equal(topFirst.TOP.MATH, "t_3");
+  assert.deepEqual(topFirst, { TOP: ["t_1", "t_3"], UPPER_MID: ["t_2"] });
+  assert.deepEqual(midFirst, { MID: ["t_1", "t_3"], UPPER_MID: ["t_2"] });
 });
 
 test("기본 반 순서로 부른 planAssignments 는 core/ai.ts 의 decideAssignments 와 같아야 한다", () => {
@@ -91,7 +87,10 @@ test("기본 반 순서로 부른 planAssignments 는 core/ai.ts 의 decideAssig
     card("t_5", "SCIENCE", 1),
   ];
   const target = academy({ teachers });
-  assert.deepEqual(planAssignments(target, ["TOP", "MID", "BASIC"]), decideAssignments(target));
+  assert.deepEqual(
+    planAssignments(target, ["TOP", "UPPER_MID", "MID", "BASIC"]),
+    decideAssignments(target),
+  );
 });
 
 test("I-2·I-4·I-5 — 시장은 4장, 초반엔 강의력 5 제외, 이월은 2장까지", () => {
