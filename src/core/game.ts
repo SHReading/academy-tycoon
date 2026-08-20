@@ -24,12 +24,12 @@ import type {
   TeacherCard,
 } from "./types";
 
-const ARCHETYPES: Archetype[] = ["FRANCHISE", "LEGACY", "SELECTIVE"];
+export const ARCHETYPES: Archetype[] = ["FRANCHISE", "LEGACY", "SELECTIVE"];
 const ORIGINAL_PRICES = new Map(
   (teacherContent as TeacherCard[]).map((teacher) => [teacher.id, teacher.askingPrice]),
 );
 
-const shuffle = <T>(items: T[], random: () => number): T[] => {
+export const shuffle = <T>(items: T[], random: () => number): T[] => {
   const result = [...items];
   for (let index = result.length - 1; index > 0; index -= 1) {
     const swap = Math.floor(random() * (index + 1));
@@ -38,7 +38,7 @@ const shuffle = <T>(items: T[], random: () => number): T[] => {
   return result;
 };
 
-const dealStartingTeachers = (deck: TeacherCard[]): { hands: TeacherCard[][]; deck: TeacherCard[] } => {
+export const dealStartingTeachers = (deck: TeacherCard[]): { hands: TeacherCard[][]; deck: TeacherCard[] } => {
   const window = deck.slice(0, 30);
   for (const target of [6, 5, 7, 4, 8, 3, 9, 2, 10]) {
     const used = new Set<string>();
@@ -61,7 +61,7 @@ const dealStartingTeachers = (deck: TeacherCard[]): { hands: TeacherCard[][]; de
   throw new Error("시작 강사 강의력 합을 동일하게 배분할 수 없다");
 };
 
-const drawMarket = (
+export const drawMarket = (
   deck: TeacherCard[],
   turn: number,
   carried: TeacherCard[] = [],
@@ -80,18 +80,18 @@ const drawMarket = (
   return { market, deck: [...skipped, ...remaining] };
 };
 
-const discountUnsold = (teacher: TeacherCard): TeacherCard => {
-  const originalPrice = ORIGINAL_PRICES.get(teacher.id) ?? teacher.askingPrice;
+export const discountUnsold = (teacher: TeacherCard, originalPrice?: number): TeacherCard => {
+  const original = originalPrice ?? ORIGINAL_PRICES.get(teacher.id) ?? teacher.askingPrice;
   return {
     ...teacher,
     askingPrice: Math.max(
-      Math.ceil(originalPrice * MIN_ASKING_PRICE_RATIO),
+      Math.ceil(original * MIN_ASKING_PRICE_RATIO),
       Math.floor(teacher.askingPrice * UNSOLD_PRICE_MULTIPLIER),
     ),
   };
 };
 
-const createAcademy = (archetype: Archetype, teachers: TeacherCard[]): Academy => ({
+export const createAcademy = (archetype: Archetype, teachers: TeacherCard[]): Academy => ({
   archetype,
   cash: STARTING_ACADEMY[archetype].cash,
   reputation: STARTING_ACADEMY[archetype].reputation,
@@ -136,14 +136,14 @@ export function createInitialState(seed: number, playerArchetype: Archetype): Ga
 export function refillMarket(state: GameState): GameState {
   if (state.status && state.status !== "PLAYING") return state;
   const carried = state.market
-    .map(discountUnsold)
+    .map((teacher) => discountUnsold(teacher))
     .sort((left, right) => left.askingPrice - right.askingPrice)
     .slice(0, MAX_CARRIED_TEACHERS);
   const dealt = drawMarket(state.deck ?? [], state.turn, carried);
   return { ...state, market: dealt.market, deck: dealt.deck };
 }
 
-const winnerOf = (academies: Academy[]): Archetype | null =>
+export const winnerOf = (academies: Academy[]): Archetype | null =>
   [...academies].sort(
     (left, right) =>
       right.marketShare - left.marketShare ||

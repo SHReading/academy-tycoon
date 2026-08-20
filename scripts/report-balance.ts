@@ -126,10 +126,9 @@ export function render(report: Report): string {
         ]),
       ["종료 턴", "판수", "비율"],
     ),
-    "",
-    "## 이 수치를 읽기 전에",
-    "",
-    ...report.notes.map((note) => `- ${note}`),
+    ...(report.notes.length
+      ? ["", "## 이 수치를 읽기 전에", "", ...report.notes.map((note) => `- ${note}`)]
+      : []),
   ];
 
   return lines.join("\n");

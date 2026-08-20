@@ -299,7 +299,7 @@ export function runBatch(config: Config): Report {
 /** 이 수치를 밸런스 판단에 쓰기 전에 반드시 읽어야 하는 전제들 */
 function caveats(source: Report["deckSource"], eventCount: number): string[] {
   const notes = [
-    "게임 초기 상태·시장 배포·승자 판정을 harness/setup.ts 가 별도로 갖고 있다. core 에 같은 규칙이 이미 있어 사본이 두 벌이다. 밸런스 확정 뒤 지운다.",
+    "AI 2사는 core/ai.ts 의 고정 규칙대로만 움직인다. 사람이 실수하거나 판을 거듭하며 학습하는 과정은 모형에 없다. 아래 승률은 정해진 4개 전략이 서로 부딪혔을 때의 값이다.",
   ];
   if (source === "synthetic") {
     notes.push(

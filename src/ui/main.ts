@@ -17,7 +17,7 @@ if (!app) throw new Error("게임 화면을 찾을 수 없습니다.");
 const academies: ReadonlyArray<readonly [Archetype, string, string, string]> = [
   ["FRANCHISE", "확장형", "큰돈으로 시장을 주도합니다.", "매 학기 월급 부담이 큽니다."],
   ["LEGACY", "명문형", "높은 학원 인기로 학생을 지킵니다.", "새 강사를 데려오기 어렵습니다."],
-  ["SELECTIVE", "선발형", "상위반 성과와 영입에 강합니다.", "돈과 정원이 가장 작습니다."],
+  ["SELECTIVE", "선발형", "쉽게 망하지 않고 버티기 좋습니다.", "시작 자금이 가장 적어 영입 경쟁에서 밀립니다."],
 ];
 
 const subjectLabels: Record<Subject, string> = {
