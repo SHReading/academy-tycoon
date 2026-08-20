@@ -124,7 +124,7 @@ test("SETTLE scores the turn and stores one weighted event for the next turn", (
 
 test("SETTLE selects three prioritized, bound headline templates with tone", () => {
   const input = makeState();
-  input.academies[2].cash = 0;
+  input.academies[2].cash = -10;
   input.headlineTemplates = [
     { id: "h_0001", situation: "NO_BID", template: "{academy}, 이번 학기 영입 없어", tone: "NEUTRAL", weight: 1 },
     { id: "h_0002", situation: "TOP_CLASS_EMPTY_SLOT", template: "상위반 강사 {n}자리 공석", tone: "BAD", weight: 1 },

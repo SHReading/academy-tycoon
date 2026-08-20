@@ -127,9 +127,9 @@ test("hand calculation 3: media and pending event effects apply once", () => {
 
   for (const settled of result) {
     closeTo(settled.reputation, 37.86125);
-    closeTo(settled.applicants, 108);
-    closeTo(settled.enrollment, 88.56);
-    closeTo(settled.cash, 71.28);
+    closeTo(settled.applicants, 144);
+    closeTo(settled.enrollment, 118.08);
+    closeTo(settled.cash, 86.04);
     closeTo(settled.marketShare, 1 / 3);
     assert.equal(settled.pendingEffect, null);
   }

@@ -22,7 +22,7 @@ export const STARTING_ACADEMY = {
 export const ARCHETYPE_MODIFIERS = {
   FRANCHISE: { score: 1, applicants: 1.2, previousReputation: 0.7, result: 0.3 },
   LEGACY: { score: 1.2, applicants: 1, previousReputation: 0.8, result: 0.2 },
-  SELECTIVE: { score: 1.1, applicants: 0.9, previousReputation: 0.7, result: 0.3 },
+  SELECTIVE: { score: 1.1, applicants: 1.2, previousReputation: 0.7, result: 0.3 },
 } as const;
 
 export const OPERATION_MODIFIERS = {
