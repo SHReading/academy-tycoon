@@ -4,21 +4,18 @@ import {
   BASE_CHURN_RATE,
   BASE_OPERATING_COST,
   BASIC_SCORE_CHURN_REDUCTION,
-  BASIC_SPECIALIST_CHURN_REDUCTION,
   CLASS_CAPACITY,
   CLASS_SCORE_MULTIPLIER,
-  EMPTY_SLOT_PENALTY,
+  CLASS_SPECIALIST_TEACHING_BONUS,
+  CLASS_TEACHER_LIMIT,
   FACTION_TEACHING_BONUS,
   FAME_INDEX_MULTIPLIER,
   MEDIA_FIGURE_FAME_BONUS,
   MEDIA_FIGURE_TEACHING_PENALTY,
-  MID_SPECIALIST_ENROLLMENT_MULTIPLIER,
   MIN_CHURN_RATE,
   MIN_CLASS_SCORE,
   MIN_REPUTATION,
   OPERATION_MODIFIERS,
-  SUBJECT_SLOT_COUNT,
-  TOP_SPECIALIST_TEACHING_BONUS,
   TOTAL_CAPACITY,
   TUITION_PER_STUDENT,
   // @ts-expect-error Node runs source tests directly and requires the .ts extension.
@@ -26,27 +23,24 @@ import {
 import type { Academy, ClassTier, GameState, TeacherCard } from "./types";
 
 const assignedTeachers = (academy: Academy, tier: ClassTier): TeacherCard[] =>
-  Object.values(academy.assignments[tier] ?? {})
+  (academy.assignments[tier] ?? [])
+    .slice(0, CLASS_TEACHER_LIMIT)
     .map((id) => academy.teachers.find((teacher) => teacher.id === id))
     .filter((teacher): teacher is TeacherCard => teacher !== undefined);
 
-const teaching = (teacher: TeacherCard, academy: Academy, tier: ClassTier): number =>
+const teaching = (teacher: TeacherCard, classmates: TeacherCard[]): number =>
   teacher.teaching -
   (teacher.trait === "MEDIA_FIGURE" ? MEDIA_FIGURE_TEACHING_PENALTY : 0) +
-  (teacher.trait === "TOP_CLASS_SPECIALIST" && tier === "TOP"
-    ? TOP_SPECIALIST_TEACHING_BONUS
-    : 0) +
+  (teacher.trait === "CLASS_SPECIALIST" ? CLASS_SPECIALIST_TEACHING_BONUS : 0) +
   (teacher.trait === "FACTION" &&
-  academy.teachers.some((colleague) => colleague.id !== teacher.id && colleague.subject === teacher.subject)
+  classmates.some((classmate) => classmate.id !== teacher.id)
     ? FACTION_TEACHING_BONUS
     : 0);
 
 export function scoreClass(academy: Academy, tier: ClassTier): number {
   const teachers = assignedTeachers(academy, tier);
-  const raw =
-    teachers.reduce((sum, teacher) => sum + teaching(teacher, academy, tier), 0) *
-      CLASS_SCORE_MULTIPLIER[tier] -
-    (SUBJECT_SLOT_COUNT - teachers.length) * EMPTY_SLOT_PENALTY;
+  const raw = teachers.reduce((sum, teacher) => sum + teaching(teacher, teachers), 0) *
+    CLASS_SCORE_MULTIPLIER[tier];
   const archetype = tier === "TOP" ? ARCHETYPE_MODIFIERS[academy.archetype].score : 1;
   return Math.max(
     MIN_CLASS_SCORE,
@@ -58,6 +52,10 @@ export const allocateEnrollment = (enrollment: number): Record<ClassTier, number
   TOP: Math.min(
     Math.round((enrollment * CLASS_CAPACITY.TOP) / TOTAL_CAPACITY),
     CLASS_CAPACITY.TOP,
+  ),
+  UPPER_MID: Math.min(
+    Math.round((enrollment * CLASS_CAPACITY.UPPER_MID) / TOTAL_CAPACITY),
+    CLASS_CAPACITY.UPPER_MID,
   ),
   MID: Math.min(
     Math.round((enrollment * CLASS_CAPACITY.MID) / TOTAL_CAPACITY),
@@ -73,6 +71,7 @@ export function scoreTurn(state: GameState): Academy[] {
   // ① 반별 성적
   const scores = state.academies.map((academy) => ({
     TOP: scoreClass(academy, "TOP"),
+    UPPER_MID: scoreClass(academy, "UPPER_MID"),
     MID: scoreClass(academy, "MID"),
     BASIC: scoreClass(academy, "BASIC"),
   }));
@@ -115,25 +114,15 @@ export function scoreTurn(state: GameState): Academy[] {
 
   // ⑤ 이탈률과 등록 인원
   const enrollments = state.academies.map((academy, index) => {
-    const basicSpecialists = assignedTeachers(academy, "BASIC").filter(
-      (teacher) => teacher.trait === "BASIC_CLASS_SPECIALIST",
-    ).length;
-    const midSpecialists = assignedTeachers(academy, "MID").filter(
-      (teacher) => teacher.trait === "MID_CLASS_SPECIALIST",
-    ).length;
     const baseChurn = Math.max(
       MIN_CHURN_RATE,
-      BASE_CHURN_RATE -
-        scores[index].BASIC * BASIC_SCORE_CHURN_REDUCTION -
-        basicSpecialists * BASIC_SPECIALIST_CHURN_REDUCTION,
+      BASE_CHURN_RATE - scores[index].BASIC * BASIC_SCORE_CHURN_REDUCTION,
     );
     const churn =
       baseChurn *
       OPERATION_MODIFIERS[academy.option].churn *
       (1 + (academy.pendingEffect?.churn ?? 0));
-    const specialistMultiplier =
-      1 + midSpecialists * (MID_SPECIALIST_ENROLLMENT_MULTIPLIER - 1);
-    return Math.min(applicants[index] * (1 - churn) * specialistMultiplier, TOTAL_CAPACITY);
+    return Math.min(applicants[index] * (1 - churn), TOTAL_CAPACITY);
   });
 
   // ⑥ 자금

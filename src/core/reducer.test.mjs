@@ -88,30 +88,20 @@ test("LEGACY bid respects its existing 40 percent cash cap", () => {
   assert.deepEqual(result.academies[1].teachers, []);
 });
 
-test("PICKY accepts a player bid but excludes an ineligible academy from winning", () => {
+test("ASSIGN moves a teacher between classes, ignores subject, and caps each class at two", () => {
   const input = makeState();
-  input.academies[0].lastBidTurn = 1;
-  input.academies[1].lastBidTurn = 1;
-  input.academies[2].reputation = 44;
-  input.market = [teacher("picky", "MATH", 5, 5, 10, "PICKY")];
+  const other = teacher("other", "ENGLISH", 2, 2, 8);
+  const full = teacher("full", "ENGLISH", 2, 2, 8);
+  input.academies[2].teachers = [input.market[2], other, full];
+  input.academies[2].assignments = { TOP: ["player"], MID: ["other", "full"] };
 
-  const result = reducer(input, { type: "BID", teacherId: "picky", amount: 20 });
+  const assigned = reducer(input, { type: "ASSIGN", teacherId: "player", classTier: "UPPER_MID" });
+  const rejected = reducer(assigned, { type: "ASSIGN", teacherId: "player", classTier: "MID" });
+  const optioned = reducer(assigned, { type: "OPTION", option: "SCHOLARSHIP" });
 
-  assert.equal(result.academies[2].lastBidTurn, 1);
-  assert.deepEqual(result.academies[2].contracts, []);
-  assert.deepEqual(result.market.map(({ id }) => id), ["picky"]);
-});
-
-test("ASSIGN moves a teacher to its subject slot and OPTION updates the player academy", () => {
-  const input = makeState();
-  input.academies[2].teachers = [input.market[2]];
-  input.academies[2].assignments = { TOP: { ENGLISH: "player" } };
-
-  const assigned = reducer(input, { type: "ASSIGN", teacherId: "player", classTier: "MID" });
-  const optioned = reducer(assigned, { type: "OPTION", option: "COUNSELING" });
-
-  assert.deepEqual(assigned.academies[2].assignments, { TOP: {}, MID: { ENGLISH: "player" } });
-  assert.equal(optioned.academies[2].option, "COUNSELING");
+  assert.deepEqual(assigned.academies[2].assignments, { TOP: [], MID: ["other", "full"], UPPER_MID: ["player"] });
+  assert.equal(rejected, assigned);
+  assert.equal(optioned.academies[2].option, "SCHOLARSHIP");
 });
 
 test("SETTLE scores the turn and stores one weighted event for the next turn", () => {
@@ -137,15 +127,15 @@ test("SETTLE selects three prioritized, bound headline templates with tone", () 
   input.academies[2].cash = 0;
   input.headlineTemplates = [
     { id: "h_0001", situation: "NO_BID", template: "{academy}, 이번 학기 영입 없어", tone: "NEUTRAL", weight: 1 },
-    { id: "h_0002", situation: "TOP_CLASS_EMPTY_SLOT", template: "상위반 {subject} 포함 {n}자리 공석", tone: "BAD", weight: 1 },
+    { id: "h_0002", situation: "TOP_CLASS_EMPTY_SLOT", template: "상위반 강사 {n}자리 공석", tone: "BAD", weight: 1 },
     { id: "h_0003", situation: "CASH_CRISIS", template: "{academy} 잔액 {n}, 비상 운영", tone: "BAD", weight: 1 },
   ];
 
   const result = reducer(input, { type: "SETTLE" });
 
   assert.deepEqual(result.lastResult.headlines, [
-    { text: "선발형 학원 잔액 11, 비상 운영", tone: "BAD" },
-    { text: "상위반 국어 포함 4자리 공석", tone: "BAD" },
+    { text: "선발형 학원 잔액 12, 비상 운영", tone: "BAD" },
+    { text: "상위반 강사 2자리 공석", tone: "BAD" },
     { text: "선발형 학원, 이번 학기 영입 없어", tone: "NEUTRAL" },
   ]);
 });
@@ -176,10 +166,10 @@ test("SETTLE decides AI assignments and options before scoring", () => {
   const franchise = result.lastResult.academies.find(({ archetype }) => archetype === "FRANCHISE");
   const legacy = result.lastResult.academies.find(({ archetype }) => archetype === "LEGACY");
 
-  assert.deepEqual(franchise.assignments, { TOP: { MATH: "f-high" }, MID: { MATH: "f-low" } });
+  assert.deepEqual(franchise.assignments, { TOP: ["f-high", "f-low"] });
   assert.equal(franchise.option, "SCHOLARSHIP");
-  assert.deepEqual(legacy.assignments, { TOP: { ENGLISH: "l" } });
-  assert.equal(legacy.option, "COUNSELING");
+  assert.deepEqual(legacy.assignments, { TOP: ["l"] });
+  assert.equal(legacy.option, "NONE");
 });
 
 test("same seed and action sequence produces the same state 100 times", () => {

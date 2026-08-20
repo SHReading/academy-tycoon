@@ -19,6 +19,7 @@ import { parseArgs } from "node:util";
 // @ts-expect-error Node runs source tests directly and requires the .ts extension.
 import { decideAssignments, decideBid, decideOption } from "../core/ai.ts";
 import {
+  CLASS_TEACHER_LIMIT,
   TOTAL_TURNS,
   // @ts-expect-error Node runs source tests directly and requires the .ts extension.
 } from "../core/balance.ts";
@@ -57,10 +58,10 @@ const STRATEGY_BID_AS: Record<Strategy, Archetype | null> = {
 };
 
 const STRATEGY_TIER_ORDER: Record<Strategy, ClassTier[]> = {
-  NO_BID: ["TOP", "MID", "BASIC"],
-  TOP_HEAVY: ["TOP", "MID", "BASIC"],
-  MID_EXPAND: ["MID", "TOP", "BASIC"],
-  BASELINE: ["TOP", "MID", "BASIC"],
+  NO_BID: ["TOP", "UPPER_MID", "MID", "BASIC"],
+  TOP_HEAVY: ["TOP", "UPPER_MID", "MID", "BASIC"],
+  MID_EXPAND: ["MID", "UPPER_MID", "TOP", "BASIC"],
+  BASELINE: ["TOP", "UPPER_MID", "MID", "BASIC"],
 };
 
 /**
@@ -76,9 +77,11 @@ export function planAssignments(academy: Academy, order: ClassTier[]): Academy["
       left.id.localeCompare(right.id),
   );
   for (const teacher of sorted) {
-    const tier = order.find((candidate) => plan[candidate]?.[teacher.subject] === undefined);
+    const tier = order.find(
+      (candidate) => (plan[candidate]?.length ?? 0) < CLASS_TEACHER_LIMIT,
+    );
     if (!tier) continue;
-    plan[tier] = { ...(plan[tier] ?? {}), [teacher.subject]: teacher.id };
+    plan[tier] = [...(plan[tier] ?? []), teacher.id];
   }
   return plan;
 }
@@ -133,8 +136,8 @@ export function playGame(
 
     // 플레이어의 반 편성과 운영 옵션은 리듀서를 통과시킨다. AI 2사는 SETTLE 안에서 처리된다.
     const plan = planAssignments(state.academies[playerIndex()], tierOrder);
-    for (const tier of ["TOP", "MID", "BASIC"] as ClassTier[]) {
-      for (const teacherId of Object.values(plan[tier] ?? {})) {
+    for (const tier of ["TOP", "UPPER_MID", "MID", "BASIC"] as ClassTier[]) {
+      for (const teacherId of plan[tier] ?? []) {
         state = reducer(state, { type: "ASSIGN", teacherId, classTier: tier });
       }
     }

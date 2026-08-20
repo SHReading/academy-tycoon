@@ -2,7 +2,7 @@ import {
   EVENT_CASH_LOW,
   EVENT_REPUTATION_HIGH,
   EVENT_REPUTATION_LOW,
-  SUBJECT_SLOT_COUNT,
+  CLASS_TEACHER_LIMIT,
   // @ts-expect-error Node runs source tests directly and requires the .ts extension.
 } from "./balance.ts";
 import type { Academy, EventCard, GameState } from "./types";
@@ -40,6 +40,6 @@ export function isEventEligible(
     }
     case "NO_BID_LAST_TURN": return previousPlayer?.lastBidTurn !== state.turn;
     case "TOP_CLASS_FULL":
-      return Object.keys(player.assignments.TOP ?? {}).length === SUBJECT_SLOT_COUNT;
+      return (player.assignments.TOP?.length ?? 0) === CLASS_TEACHER_LIMIT;
   }
 }

@@ -8,10 +8,9 @@ export const STARTING_TEACHERS = 2;
 export const MAX_CARRIED_TEACHERS = 2;
 export const MIN_ASKING_PRICE_RATIO = 0.5;
 
-export const SUBJECT_SLOT_COUNT = 4;
-export const CLASS_SCORE_MULTIPLIER = { TOP: 3, MID: 1, BASIC: 1 } as const;
-export const EMPTY_SLOT_PENALTY = 2;
-export const CLASS_CAPACITY = { TOP: 40, MID: 80, BASIC: 80 } as const;
+export const CLASS_TEACHER_LIMIT = 2;
+export const CLASS_SCORE_MULTIPLIER = { TOP: 3, UPPER_MID: 2, MID: 1.5, BASIC: 1 } as const;
+export const CLASS_CAPACITY = { TOP: 40, UPPER_MID: 60, MID: 60, BASIC: 40 } as const;
 export const TOTAL_CAPACITY = 200;
 
 export const STARTING_ACADEMY = {
@@ -28,9 +27,7 @@ export const ARCHETYPE_MODIFIERS = {
 
 export const OPERATION_MODIFIERS = {
   SELF_STUDY: { score: 1, reputation: 0, applicants: 1, churn: 0.8, revenue: 1, cost: 8 },
-  COUNSELING: { score: 1.05, reputation: 2, applicants: 1, churn: 1, revenue: 1, cost: 8 },
   SCHOLARSHIP: { score: 1, reputation: 0, applicants: 1.3, churn: 1, revenue: 1, cost: 15 },
-  TUITION_HIKE: { score: 1, reputation: -3, applicants: 0.85, churn: 1, revenue: 1.25, cost: 0 },
   NONE: { score: 1, reputation: 0, applicants: 1, churn: 1, revenue: 1, cost: 0 },
 } as const;
 
@@ -44,13 +41,10 @@ export const BASE_OPERATING_COST = 20;
 export const MIN_CLASS_SCORE = 0;
 export const MIN_REPUTATION = 0;
 
-export const TOP_SPECIALIST_TEACHING_BONUS = 1;
-export const MID_SPECIALIST_ENROLLMENT_MULTIPLIER = 1.15;
-export const BASIC_SPECIALIST_CHURN_REDUCTION = 0.03;
+export const CLASS_SPECIALIST_TEACHING_BONUS = 1;
 export const MEDIA_FIGURE_TEACHING_PENALTY = 1;
 export const MEDIA_FIGURE_FAME_BONUS = 2;
 export const FACTION_TEACHING_BONUS = 1;
-export const PICKY_REPUTATION_MINIMUM = 45;
 
 export const FRANCHISE_BID_MULTIPLIER = 1.2;
 export const LEGACY_BID_MULTIPLIER = 1.1;

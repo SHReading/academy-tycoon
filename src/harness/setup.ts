@@ -54,11 +54,8 @@ const TEACHING_WEIGHTS: Array<[number, number]> = [
   [5, 5],
 ];
 const TRAITS: Trait[] = [
-  "TOP_CLASS_SPECIALIST",
-  "MID_CLASS_SPECIALIST",
-  "BASIC_CLASS_SPECIALIST",
+  "CLASS_SPECIALIST",
   "MEDIA_FIGURE",
-  "PICKY",
   "FACTION",
 ];
 
