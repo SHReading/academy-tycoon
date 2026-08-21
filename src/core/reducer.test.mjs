@@ -45,7 +45,7 @@ const makeState = () => ({
 
 test("BID resolves player, FRANCHISE, and LEGACY bids immediately within cash caps", () => {
   const input = makeState();
-  input.academies[0].contracts.push({ teacherId: "old", price: 70, remainingTurns: 3 });
+  input.academies[0].contracts.push({ teacherId: "old", price: 80, remainingTurns: 3 });
   const snapshot = structuredClone(input);
   const result = reducer(input, { type: "BID", teacherId: "player", amount: 15 });
 
@@ -124,7 +124,7 @@ test("SETTLE scores the turn and stores one weighted event for the next turn", (
 
 test("SETTLE selects three prioritized, bound headline templates with tone", () => {
   const input = makeState();
-  input.academies[2].cash = -10;
+  input.academies[2].cash = -16;
   input.headlineTemplates = [
     { id: "h_0001", situation: "NO_BID", template: "{academy}, 이번 학기 영입 없어", tone: "NEUTRAL", weight: 1 },
     { id: "h_0002", situation: "TOP_CLASS_EMPTY_SLOT", template: "상위반 강사 {n}자리 공석", tone: "BAD", weight: 1 },

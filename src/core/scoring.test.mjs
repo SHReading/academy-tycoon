@@ -51,7 +51,7 @@ test("hand calculation 1: empty classes score zero without a slot penalty", () =
     assert.equal(settled.reputation, 34);
     assert.equal(settled.applicants, 120);
     assert.equal(settled.enrollment, 96);
-    assert.equal(settled.cash, 128);
+    assert.equal(settled.cash, 134);
     closeTo(settled.marketShare, 1 / 3);
     assert.equal(settled.pendingEffect, null);
   }
@@ -104,7 +104,7 @@ test("hand calculation 2: four class scores and contracts settle with three opti
     closeTo(settled.reputation, 55.08);
     assert.equal(settled.applicants, 100);
     closeTo(settled.enrollment, 81.5);
-    closeTo(settled.cash, 80.75);
+    closeTo(settled.cash, 86.75);
     assert.deepEqual(settled.contracts, [{ teacherId: "top", price: 10, remainingTurns: 5 }]);
   }
 });
@@ -129,7 +129,7 @@ test("hand calculation 3: media and pending event effects apply once", () => {
     closeTo(settled.reputation, 43.930625);
     closeTo(settled.applicants, 144);
     closeTo(settled.enrollment, 118.08);
-    closeTo(settled.cash, 86.04);
+    closeTo(settled.cash, 92.04);
     closeTo(settled.marketShare, 1 / 3);
     assert.equal(settled.pendingEffect, null);
   }

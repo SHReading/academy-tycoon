@@ -56,17 +56,17 @@ test("refillMarket discounts and carries at most two unsold teachers before draw
 
   assert.deepEqual(state, snapshot);
   assert.deepEqual(refilled.market.map(({ id }) => id), ["t_0001", "t_0013", "t_0006", "t_0007"]);
-  assert.deepEqual(refilled.market.slice(0, 2).map(({ askingPrice }) => askingPrice), [8, 16]);
+  assert.deepEqual(refilled.market.slice(0, 2).map(({ askingPrice }) => askingPrice), [6, 13]);
   assert.deepEqual(refilled.deck.map(({ id }) => id), ["t_0008", "t_0009"]);
   assert.ok(!refilled.deck.some(({ id }) => id === "t_0011"));
 
   const atFloor = game.refillMarket({
     ...initial,
     turn: 3,
-    market: [{ ...teachers.get("t_0011"), askingPrice: 15 }],
+    market: [{ ...teachers.get("t_0011"), askingPrice: 11 }],
     deck: ["t_0006", "t_0007", "t_0008"].map((id) => ({ ...teachers.get(id) })),
   });
-  assert.equal(atFloor.market[0].askingPrice, 15);
+  assert.equal(atFloor.market[0].askingPrice, 9);
 
   const early = game.refillMarket({
     ...initial,

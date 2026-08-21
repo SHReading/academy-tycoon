@@ -1,12 +1,12 @@
 export const TOTAL_TURNS = 6;
 export const MARKET_SIZE = 4;
 export const CONTRACT_TURNS = 6;
-export const UNSOLD_PRICE_MULTIPLIER = 0.9;
+export const UNSOLD_PRICE_MULTIPLIER = 0.75;
 export const EARLY_MARKET_TURNS = 2;
 export const MAX_EARLY_TEACHING = 4;
 export const STARTING_TEACHERS = 2;
 export const MAX_CARRIED_TEACHERS = 2;
-export const MIN_ASKING_PRICE_RATIO = 0.5;
+export const MIN_ASKING_PRICE_RATIO = 0.3;
 
 export const CLASS_TEACHER_LIMIT = 2;
 export const CLASS_SCORE_MULTIPLIER = { TOP: 3, UPPER_MID: 2, MID: 1.5, BASIC: 1 } as const;
@@ -37,7 +37,7 @@ export const BASE_CHURN_RATE = 0.2;
 export const MIN_CHURN_RATE = 0.05;
 export const BASIC_SCORE_CHURN_REDUCTION = 0.005;
 export const TUITION_PER_STUDENT = 0.5;
-export const BASE_OPERATING_COST = 20;
+export const BASE_OPERATING_COST = 14;
 export const MIN_CLASS_SCORE = 0;
 export const MIN_REPUTATION = 0;
 

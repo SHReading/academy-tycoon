@@ -53,7 +53,7 @@ test("decideBid applies contract reserve and archetype cash caps without trait e
   assert.equal(decideBid(academy("LEGACY", 70), [teacher("too-expensive", "MATH", 9, 1, 30)]), undefined);
   const franchise = academy("FRANCHISE", 50);
   franchise.contracts = [{ teacherId: "old", price: 15, remainingTurns: 1 }];
-  assert.equal(decideBid(franchise, [teacher("over-reserve", "MATH", 9, 1, 13)]), undefined);
+  assert.equal(decideBid(franchise, [teacher("over-reserve", "MATH", 9, 1, 18)]), undefined);
 });
 
 test("decideAssignments fills four classes with two teachers each regardless of subject", () => {
@@ -77,7 +77,7 @@ test("decideAssignments fills four classes with two teachers each regardless of 
 });
 
 test("decideOption uses only self study, scholarship, and none", () => {
-  const atRisk = academy("FRANCHISE", 29, 30);
+  const atRisk = academy("FRANCHISE", 23, 30);
   atRisk.contracts = [{ teacherId: "old", price: 10, remainingTurns: 1 }];
   assert.equal(decideOption(atRisk), "NONE");
   assert.equal(decideOption(academy("SELECTIVE", 30, 44)), "SELF_STUDY");

@@ -109,10 +109,10 @@ test("I-2·I-4·I-5 — 시장은 4장, 초반엔 강의력 5 제외, 이월은 
   assert.deepEqual(carried.market.slice(0, 2).map((c) => c.id), ["u_1", "u_2"]);
 });
 
-test("I-4 — 유찰가는 10%씩 내려가되 원가의 50% 아래로는 안 간다", () => {
-  assert.equal(discountUnsold(card("x", "MATH", 3, 3, 20), 20).askingPrice, 18);
-  assert.equal(discountUnsold(card("x", "MATH", 3, 3, 11), 20).askingPrice, 10);
-  assert.equal(discountUnsold(card("x", "MATH", 3, 3, 10), 20).askingPrice, 10);
+test("I-4 — 유찰가는 25%씩 내려가되 원가의 30% 아래로는 안 간다", () => {
+  assert.equal(discountUnsold(card("x", "MATH", 3, 3, 20), 20).askingPrice, 15);
+  assert.equal(discountUnsold(card("x", "MATH", 3, 3, 11), 20).askingPrice, 8);
+  assert.equal(discountUnsold(card("x", "MATH", 3, 3, 7), 20).askingPrice, 6);
 });
 
 test("W-1 — 점유율 동률이면 평판, 그다음 자금 순", () => {

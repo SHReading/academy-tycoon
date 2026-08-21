@@ -26,7 +26,7 @@ test("balance constants match the approved settlement rules", async () => {
   assert.equal(balance.CLASS_SPECIALIST_TEACHING_BONUS, 1);
   assert.equal(balance.BASIC_SPECIALIST_CHURN_REDUCTION, undefined);
   assert.equal(balance.TUITION_PER_STUDENT, 0.5);
-  assert.equal(balance.BASE_OPERATING_COST, 20);
+  assert.equal(balance.BASE_OPERATING_COST, 14);
   assert.equal(balance.MIN_CLASS_SCORE, 0);
   assert.equal(balance.MIN_REPUTATION, 0);
   assert.equal(balance.CONTRACT_TURNS, 6);
