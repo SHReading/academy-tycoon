@@ -24,7 +24,7 @@ test("초기 상태에서 BID→ASSIGN→OPTION→SETTLE을 6턴 완주하고 �
 });
 
 test("자금이 0 미만인 상태가 2턴 연속이면 6턴 전에 폐원하고 패배한다", () => {
-  const outcome = playGame(1238, "SELECTIVE", "BASELINE", pool(), []);
+  const outcome = playGame(22, "FRANCHISE", "BASELINE", pool(), []);
 
   assert.equal(outcome.turns, 5);
   assert.equal(outcome.bankrupt, true);

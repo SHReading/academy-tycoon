@@ -8,9 +8,9 @@ test("balance constants match the approved settlement rules", async () => {
   assert.deepEqual(balance.CLASS_SCORE_MULTIPLIER, { TOP: 3, UPPER_MID: 2, MID: 1.5, BASIC: 1 });
   assert.deepEqual(balance.CLASS_CAPACITY, { TOP: 40, UPPER_MID: 60, MID: 60, BASIC: 40 });
   assert.deepEqual(balance.ARCHETYPE_MODIFIERS, {
-    FRANCHISE: { score: 1, applicants: 1.2, previousReputation: 0.7, result: 0.3 },
-    LEGACY: { score: 1.2, applicants: 1, previousReputation: 0.8, result: 0.2 },
-    SELECTIVE: { score: 1.1, applicants: 1.2, previousReputation: 0.7, result: 0.3 },
+    FRANCHISE: { score: 1, applicants: 1.2, previousReputation: 0.85, result: 0.15 },
+    LEGACY: { score: 1.2, applicants: 1, previousReputation: 0.9, result: 0.1 },
+    SELECTIVE: { score: 1.1, applicants: 1.2, previousReputation: 0.85, result: 0.15 },
   });
   assert.deepEqual(balance.OPERATION_MODIFIERS, {
     SELF_STUDY: { score: 1, reputation: 0, applicants: 1, churn: 0.8, revenue: 1, cost: 8 },

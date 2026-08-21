@@ -20,9 +20,9 @@ export const STARTING_ACADEMY = {
 } as const;
 
 export const ARCHETYPE_MODIFIERS = {
-  FRANCHISE: { score: 1, applicants: 1.2, previousReputation: 0.7, result: 0.3 },
-  LEGACY: { score: 1.2, applicants: 1, previousReputation: 0.8, result: 0.2 },
-  SELECTIVE: { score: 1.1, applicants: 1.2, previousReputation: 0.7, result: 0.3 },
+  FRANCHISE: { score: 1, applicants: 1.2, previousReputation: 0.85, result: 0.15 },
+  LEGACY: { score: 1.2, applicants: 1, previousReputation: 0.9, result: 0.1 },
+  SELECTIVE: { score: 1.1, applicants: 1.2, previousReputation: 0.85, result: 0.15 },
 } as const;
 
 export const OPERATION_MODIFIERS = {

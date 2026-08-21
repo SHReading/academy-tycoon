@@ -79,6 +79,12 @@ h1 {
 
 .compact h1 { font-size: clamp(2rem, 9vw, 3.7rem); }
 
+.screen-header .premise {
+  max-width: 580px;
+  margin: 0 0 10px;
+  line-height: 1.55;
+}
+
 .screen-header > p:last-child {
   max-width: 580px;
   margin: 0;

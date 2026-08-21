@@ -134,7 +134,7 @@ test("SETTLE selects three prioritized, bound headline templates with tone", () 
   const result = reducer(input, { type: "SETTLE" });
 
   assert.deepEqual(result.lastResult.headlines, [
-    { text: "선발형 학원 잔액 12, 비상 운영", tone: "BAD" },
+    { text: "선발형 학원 잔액 14, 비상 운영", tone: "BAD" },
     { text: "상위반 강사 2자리 공석", tone: "BAD" },
     { text: "선발형 학원, 이번 학기 영입 없어", tone: "NEUTRAL" },
   ]);

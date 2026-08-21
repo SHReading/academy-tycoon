@@ -48,7 +48,7 @@ test("hand calculation 1: empty classes score zero without a slot penalty", () =
   const result = scoreTurn(input);
 
   for (const settled of result) {
-    assert.equal(settled.reputation, 28);
+    assert.equal(settled.reputation, 34);
     assert.equal(settled.applicants, 120);
     assert.equal(settled.enrollment, 96);
     assert.equal(settled.cash, 128);
@@ -101,7 +101,7 @@ test("hand calculation 2: four class scores and contracts settle with three opti
   const result = scoreTurn(state([legacy, structuredClone(legacy), structuredClone(legacy)]));
 
   for (const settled of result) {
-    closeTo(settled.reputation, 50.16);
+    closeTo(settled.reputation, 55.08);
     assert.equal(settled.applicants, 100);
     closeTo(settled.enrollment, 81.5);
     closeTo(settled.cash, 80.75);
@@ -126,7 +126,7 @@ test("hand calculation 3: media and pending event effects apply once", () => {
   const result = scoreTurn(state([selective, structuredClone(selective), structuredClone(selective)]));
 
   for (const settled of result) {
-    closeTo(settled.reputation, 37.86125);
+    closeTo(settled.reputation, 43.930625);
     closeTo(settled.applicants, 144);
     closeTo(settled.enrollment, 118.08);
     closeTo(settled.cash, 86.04);
@@ -161,7 +161,7 @@ test("churn floor is applied before option and event ratios", () => {
     pendingEffect: { churn: -0.1, grade: 10 },
   });
   const [result] = scoreTurn(state([input, academy(), academy()]));
-  const expectedApplicants = 300 * ((result.reputation + 4) / ((result.reputation + 4) + 28 + 28)) * 1.2;
+  const expectedApplicants = 300 * ((result.reputation + 4) / ((result.reputation + 4) + 34 + 34)) * 1.2;
 
   closeTo(result.enrollment, expectedApplicants * (1 - 0.05 * 0.8 * 0.9));
 });
@@ -171,6 +171,6 @@ test("class scores and reputation cannot fall below zero", () => {
   const insolvent = academy({ reputation: -10 });
   const [weakResult, insolventResult] = scoreTurn(state([weak, insolvent, academy()]));
 
-  assert.equal(weakResult.reputation, 8);
+  assert.equal(weakResult.reputation, 9);
   assert.equal(insolventResult.reputation, 0);
 });

@@ -80,6 +80,7 @@ const academyScreen = () => `
     <header class="screen-header">
       <p class="eyebrow">학원 타이쿤</p>
       <h1>어떤 방식으로<br>입시 시장을 차지할까요?</h1>
+      <p class="premise">재수학원 세 곳이 같은 강사를 놓고 6학기 동안 경쟁합니다. 내가 지르지 않으면 경쟁 학원이 데려갑니다.</p>
       <p>선택한 학원의 강점이 곧 전략이 됩니다.</p>
     </header>
     <div class="academy-grid">
@@ -213,7 +214,9 @@ const resultScreen = () => {
   const winner = academies.find(([archetype]) => archetype === current.winner)?.[1];
   const title = status === "WON" ? "시장 정상" : isOver ? "게임 종료" : "교문 앞 소식";
   const outcome = status === "WON"
-    ? "최종 학생 점유 선두로 승리했습니다."
+    ? academy.cash < 0
+      ? "적자를 안고도 학생 점유 선두를 지켰습니다."
+      : "최종 학생 점유 선두로 승리했습니다."
     : status === "LOST"
       ? current.deficitStreak === 2
         ? "두 학기 연속 적자로 폐원했습니다."
