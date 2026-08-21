@@ -19,6 +19,12 @@ node scripts/report-balance.ts sim.json                      # 리포트 생성
 
 `main`에 푸시하면 테스트를 돌리고 통과 시 GitHub Pages로 배포됩니다.
 
+## 오프라인 시연
+
+`npm run build`가 `dist/offline.html`을 함께 만듭니다. JS·CSS가 전부 인라인된 단일 파일(43KB)이라
+**더블클릭만으로 실행**되며 네트워크가 없어도 돌아갑니다. 배포본에서도 받을 수 있습니다 —
+https://shreading.github.io/academy-tycoon/offline.html
+
 ## 문서
 
 | 문서 | 내용 |
