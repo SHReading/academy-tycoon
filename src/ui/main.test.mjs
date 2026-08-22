@@ -32,3 +32,14 @@ test("적자로 이긴 판은 빚을 숨기지 않고, 첫 화면이 소재를 �
   // 첫 화면이 재수학원·강사 경쟁·기간을 스스로 밝힌다 (튜토리얼 화면 없음 원칙 유지)
   assert.match(source, /재수학원 세 곳이 같은 강사를 놓고 6학기 동안 경쟁합니다/);
 });
+
+test("반 편성 화면에서 배치 전후로 강사 실력을 볼 수 있다", () => {
+  // 배치는 실력 × 반 배수로 성적이 정해지는데, 지금까지 이 화면에 실력이 없었다
+  assert.match(assignment, /roster-card[\s\S]{0,400}실력 \$\{dots\(teacher\.teaching\)\}/);
+  assert.match(assignment, /teacher-slot[\s\S]{0,400}실력 \$\{dots\(assigned\.teaching\)\}/);
+  // 점 표시만으로는 읽히지 않으므로 숫자를 aria 로 병기한다
+  assert.match(assignment, /aria-label="실력 \$\{teacher\.teaching\}"/);
+  assert.match(assignment, /실력 \$\{assigned\.teaching\}/);
+  // 유명세는 배치 결과에 영향이 없으므로 넣지 않는다
+  assert.doesNotMatch(assignment, /유명세/);
+});

@@ -162,6 +162,9 @@ const assignmentScreen = () => {
         ${academy.teachers.map((teacher) => `
           <button class="roster-card ${teacher.id === selectedOwnedTeacherId ? "is-selected" : ""}" data-owned-teacher="${teacher.id}" aria-pressed="${teacher.id === selectedOwnedTeacherId}">
             <small>${subjectLabels[teacher.subject]}</small><strong>${teacher.name}</strong>
+            <span class="ratings" aria-label="실력 ${teacher.teaching}">
+              <small>실력 ${dots(teacher.teaching)}</small>
+            </span>
           </button>
         `).join("")}
       </div>
@@ -176,8 +179,9 @@ const assignmentScreen = () => {
               ${Array.from({ length: 2 }, (_, index) => {
                 const assigned = teacherById(academy.assignments[tier]?.[index] ?? "");
                 return `
-                  <button class="teacher-slot ${assigned ? "is-filled" : ""}" type="button" data-tier="${tier}" aria-label="${tierLabels[tier]} ${index + 1}번 자리: ${assigned?.name ?? "빈 자리"}">
+                  <button class="teacher-slot ${assigned ? "is-filled" : ""}" type="button" data-tier="${tier}" aria-label="${tierLabels[tier]} ${index + 1}번 자리: ${assigned ? `${assigned.name}, 실력 ${assigned.teaching}` : "빈 자리"}">
                     <span>${assigned?.name ?? "빈 자리"}</span>
+                    ${assigned ? `<small aria-hidden="true">실력 ${dots(assigned.teaching)}</small>` : ""}
                   </button>
                 `;
               }).join("")}
